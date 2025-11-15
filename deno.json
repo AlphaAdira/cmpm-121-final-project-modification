@@ -1,0 +1,20 @@
+{
+  "tasks": { 
+    "dev": "deno run --node-modules-dir -A npm:vite@5", 
+    "build": "deno run --node-modules-dir -A npm:vite@5 build",
+    "preview": "deno run --node-modules-dir -A npm:vite@5 preview",
+    "check": "deno check src/main.ts",
+    "lint": "deno lint src/",
+    "fmt": "deno fmt src/",
+    "ci": "deno task check && deno task lint && deno task fmt --check && deno task build"
+  },
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "esnext"]
+  },
+  "lint": {
+    "include": ["src/"]
+  },
+  "fmt": {
+    "include": ["src/"]
+  }
+}

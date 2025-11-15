@@ -1,0 +1,4 @@
+{
+  "deno.enable": true, // Enable Deno TypeScript compiler
+  "deno.lint": true // Enable automatic linting
+}

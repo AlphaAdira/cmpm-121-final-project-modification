@@ -1,0 +1,6 @@
+{
+  "recommendations": [
+    "denoland.vscode-deno", // Deno extension for TypeScript/JavaScript
+    "davidanson.vscode-markdownlint" // Linting tool for markdown files
+  ]
+}
