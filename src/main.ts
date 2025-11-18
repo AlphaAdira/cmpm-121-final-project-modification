@@ -22,7 +22,7 @@ camera.position.z = 5;
 // Create renderer
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(globalThis.innerWidth, globalThis.innerHeight);
-document.body.appendChild(renderer.domElement as any);
+document.body.appendChild(renderer.domElement);
 
 // Create a cube
 const geometry = new THREE.BoxGeometry();
