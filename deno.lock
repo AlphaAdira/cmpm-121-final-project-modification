@@ -2,6 +2,7 @@
   "version": "5",
   "specifiers": {
     "npm:@types/three@0.181": "0.181.0",
+    "npm:ammo.js@^0.0.10": "0.0.10",
     "npm:three@~0.181.1": "0.181.1",
     "npm:vite@5": "5.4.21"
   },
@@ -261,6 +262,9 @@
     "@webgpu/types@0.1.66": {
       "integrity": "sha512-YA2hLrwLpDsRueNDXIMqN9NTzD6bCDkuXbOSe0heS+f8YE8usA6Gbv1prj81pzVHrbaAma7zObnIC+I6/sXJgA=="
     },
+    "ammo.js@0.0.10": {
+      "integrity": "sha512-jOv977u71jrDUzHfmQ99YaW90/y8YLn/3HFTmtLLzf5wJynAfG+/a1Ie5gbn0fE0uSAHxXVsFk4Bzq8qRPWqAA=="
+    },
     "esbuild@0.21.5": {
       "integrity": "sha512-mg3OPMV4hXywwpoDxu3Qda5xCKQi+vCTZq8S9J/EpkhB2HzKXq4SNFZE3+NK93JYxc8VMSep+lOUSC/RVKaBqw==",
       "optionalDependencies": [
@@ -372,6 +376,7 @@
     "packageJson": {
       "dependencies": [
         "npm:@types/three@0.181",
+        "npm:ammo.js@^0.0.10",
         "npm:three@~0.181.1"
       ]
     }

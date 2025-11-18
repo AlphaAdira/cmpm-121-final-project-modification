@@ -1,0 +1,12 @@
+{
+  "name": "CMPM 121 Final Project",
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "postCreateCommand": "curl -fsSL https://deno.land/install.sh | sh && echo 'export PATH=\"$HOME/.deno/bin:$PATH\"' >> ~/.bashrc",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "denoland.vscode-deno"
+      ]
+    }
+  }
+}
