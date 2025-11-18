@@ -13,7 +13,7 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
   75, // FOV
   globalThis.innerWidth / globalThis.innerHeight, // Aspect
-  0.1,  // Near
+  0.1, // Near
   1000, // Far
 );
 camera.position.z = 10;
@@ -38,20 +38,20 @@ scene.add(light);
 // Add a static ground
 const ground = physics.addBox(
   new THREE.Vector3(20, 1, 20), // Ground size
-  new THREE.Vector3(0, -5, 0),  // Starting position
+  new THREE.Vector3(0, -5, 0), // Starting position
   0, // Mass (0 = static object)
-  0x777777  // Gray
-)
+  0x777777, // Gray
+);
 scene.add(ground);
 
 // Add a physics cube
 const cube = physics.addBox(
   new THREE.Vector3(1, 1, 1), // Cube size
   new THREE.Vector3(0, 5, 0), // Starting position
-  1,  // Mass
-  0x00ff00  // Color
+  1, // Mass
+  0x00ff00, // Color
 );
-scene.add(cube)
+scene.add(cube);
 
 // Animation loop
 function animate() {

@@ -30,7 +30,12 @@ export class PhysicsEngine {
   }
 
   /** Creates a physics-enabled box */
-  addBox(size: THREE.Vector3, position: THREE.Vector3, mass: number = 1, color = 0xffffff) {
+  addBox(
+    size: THREE.Vector3,
+    position: THREE.Vector3,
+    mass: number = 1,
+    color = 0xffffff,
+  ) {
     const geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
     const material = new THREE.MeshStandardMaterial({ color });
     const cube = new THREE.Mesh(geometry, material);
@@ -41,7 +46,12 @@ export class PhysicsEngine {
   }
 
   /** Creates a physics-enabled sphere */
-  addSphere(radius: number, position: THREE.Vector3, mass: number = 1, color = 0xffffff) {
+  addSphere(
+    radius: number,
+    position: THREE.Vector3,
+    mass: number = 1,
+    color = 0xffffff,
+  ) {
     const geometry = new THREE.SphereGeometry(radius, 32, 32);
     const material = new THREE.MeshStandardMaterial({ color });
     const sphere = new THREE.Mesh(geometry, material);
