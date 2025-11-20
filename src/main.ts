@@ -179,8 +179,9 @@ const enableCameraControls = false;
     }
 
     // puzzle fail
-    if (isTouching(mainCube, failGround) && !successShown) {
+    if (isTouching(mainCube, failGround)) {
       showText("fail", "That's not right... TRY AGAIN", "red");
+      successShown = false;
     }
   }
 
@@ -194,12 +195,17 @@ const enableCameraControls = false;
   }
 
   function showText(elementID: string, message: string, color: string) {
-    if (elementID == "success" && document.getElementById("fail")) {
-      document.getElementById("fail")!.remove();
+    const existing = document.getElementById(elementID);
+    if (existing) {
+      existing.remove();
     }
-    if (elementID == "fail" && document.getElementById("success")) {
-      document.getElementById("success")!.remove();
+    const opposite = document.getElementById(
+      elementID === "success" ? "fail" : "success",
+    );
+    if (opposite) {
+      opposite.remove();
     }
+
     const el = document.createElement("div");
     el.id = elementID;
     el.textContent = message;
