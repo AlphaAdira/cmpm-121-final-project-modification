@@ -67,7 +67,7 @@ const enableCameraControls = false;
     new THREE.Vector3(5, 1, 20), // Target ground size
     new THREE.Vector3(5, -3.5, 0), // Starting position
     0, // Mass (0 = static object)
-    0x00ff00, // Green
+    0x22aa22, // Green
   );
   scene.add(targetGround);
 
