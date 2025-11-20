@@ -65,7 +65,7 @@ const enableCameraControls = false;
   // Add a target ground
   const targetGround = physics.addBox(
     new THREE.Vector3(5, 1, 20), // Target ground size
-    new THREE.Vector3(0, -3, 0), // Starting position
+    new THREE.Vector3(5, -3, 0), // Starting position
     0, // Mass (0 = static object)
     0xff00ff, // Magenta
   );
