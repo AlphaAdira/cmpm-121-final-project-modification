@@ -62,6 +62,15 @@ const enableCameraControls = false;
   );
   scene.add(ground);
 
+  // Add a target ground
+  const targetGround = physics.addBox(
+    new THREE.Vector3(5, 1, 20), // Target ground size
+    new THREE.Vector3(10, 0, 0), // Starting position
+    0, // Mass (0 = static object)
+    0x00ff00, // Green
+  );
+  scene.add(targetGround);
+
   // Add an interactive physics cube
   const mainCube = physics.addBox(
     new THREE.Vector3(1, 1, 1), // Cube size
