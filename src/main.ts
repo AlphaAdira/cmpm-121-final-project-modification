@@ -174,8 +174,13 @@ const enableCameraControls = false;
 
     // puzzle success
     if (isTouching(mainCube, targetGround) && !successShown) {
-      showText("SUCCESS! You landed it! 🎉");
+      showText("SUCCESS! You landed it! 🎉", "lime");
       successShown = true;
+    }
+
+    // puzzle fail
+    if (isTouching(mainCube, failGround) && !successShown) {
+      showText("That's not right... TRY AGAIN", "red");
     }
   }
 
@@ -188,7 +193,7 @@ const enableCameraControls = false;
     return cubeBox.intersectsBox(targetBox);
   }
 
-  function showText(message: string) {
+  function showText(message: string, color: string) {
     const el = document.createElement("div");
     el.id = "success-text";
     el.textContent = message;
@@ -196,7 +201,7 @@ const enableCameraControls = false;
     el.style.top = "20px";
     el.style.left = "50%";
     el.style.transform = "translateX(-50%)";
-    el.style.color = "lime";
+    el.style.color = color;
     el.style.fontSize = "32px";
     el.style.fontWeight = "bold";
     el.style.textShadow = "2px2px4px #000";
