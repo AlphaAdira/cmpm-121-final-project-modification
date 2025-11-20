@@ -221,8 +221,5 @@ const enableCameraControls = false;
     el.style.pointerEvents = "none";
     el.style.transition = "opacity1.5s ease-out";
     document.body.appendChild(el);
-    setTimeout(() => {
-      if (el?.parentElement) el.parentElement.removeChild(el);
-    }, 2000);
   }
 })();
