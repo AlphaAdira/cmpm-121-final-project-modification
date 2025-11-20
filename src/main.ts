@@ -42,7 +42,7 @@ const enableCameraControls = false;
       LEFT: null,
       MIDDLE: THREE.MOUSE.DOLLY, // Zoom
       RIGHT: THREE.MOUSE.ROTATE, // Orbit camera
-    }
+    };
 
     cameraControls.update();
   }
@@ -125,7 +125,10 @@ const enableCameraControls = false;
       // Create a drag plane perpendicular to the camera
       const planeNormal = new THREE.Vector3();
       camera.getWorldDirection(planeNormal);
-      const plane = new THREE.Plane(planeNormal, -planeNormal.dot(mainCube.position));
+      const plane = new THREE.Plane(
+        planeNormal,
+        -planeNormal.dot(mainCube.position),
+      );
 
       // Make cube follow the cursor position
       const point = raycaster.ray.intersectPlane(plane, new THREE.Vector3());
@@ -136,12 +139,12 @@ const enableCameraControls = false;
         if (point.y < groundTop) {
           point.y = groundTop;
         }
-        
+
         // Set cube position to cursor
         mainCube.position.copy(point);
       }
     } else {
-      mainCube.userData.kinematic = false
+      mainCube.userData.kinematic = false;
     }
 
     // Update camera and rendering

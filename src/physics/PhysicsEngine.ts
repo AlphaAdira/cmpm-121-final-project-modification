@@ -1,7 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
 import * as THREE from "three";
 import { AmmoPhysics } from "three/examples/jsm/physics/AmmoPhysics.js";
-import Ammo from "three/examples/jsm/libs/ammo.wasm.js";
 
 // The shape of the actual AmmoPhysics object returned by the library
 export interface AmmoPhysicsObject {
