@@ -174,13 +174,13 @@ const enableCameraControls = false;
 
     // puzzle success
     if (isTouching(mainCube, targetGround) && !successShown) {
-      showText("SUCCESS! You landed it! 🎉", "lime");
+      showText("success", "SUCCESS! You landed it! 🎉", "lime");
       successShown = true;
     }
 
     // puzzle fail
     if (isTouching(mainCube, failGround) && !successShown) {
-      showText("That's not right... TRY AGAIN", "red");
+      showText("fail", "That's not right... TRY AGAIN", "red");
     }
   }
 
@@ -193,9 +193,15 @@ const enableCameraControls = false;
     return cubeBox.intersectsBox(targetBox);
   }
 
-  function showText(message: string, color: string) {
+  function showText(elementID: string, message: string, color: string) {
+    if (elementID == "success" && document.getElementById("fail")) {
+      document.getElementById("fail")!.remove();
+    }
+    if (elementID == "fail" && document.getElementById("success")) {
+      document.getElementById("success")!.remove();
+    }
     const el = document.createElement("div");
-    el.id = "success-text";
+    el.id = elementID;
     el.textContent = message;
     el.style.position = "absolute";
     el.style.top = "20px";
@@ -209,5 +215,8 @@ const enableCameraControls = false;
     el.style.pointerEvents = "none";
     el.style.transition = "opacity1.5s ease-out";
     document.body.appendChild(el);
+    setTimeout(() => {
+      if (el?.parentElement) el.parentElement.removeChild(el);
+    }, 2000);
   }
 })();
