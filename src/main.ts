@@ -124,6 +124,7 @@ const enableCameraControls = false;
   });
 
   // ---------- Animation Loop ----------
+  let successShown = false;
   function animate() {
     requestAnimationFrame(animate);
 
@@ -161,7 +162,38 @@ const enableCameraControls = false;
       cameraControls?.update();
     }
     renderer.render(scene, camera);
+
+    // puzzle success
+    if (isTouching(mainCube, targetGround) && !successShown) {
+      showText("SUCCESS! You landed it! 🎉");
+      successShown = true;
+    }
   }
 
   animate();
+
+  // ------- Success Call ----------
+  function isTouching(cube: THREE.Mesh, target: THREE.Mesh): boolean {
+    const cubeBox = new THREE.Box3().setFromObject(cube);
+    const targetBox = new THREE.Box3().setFromObject(target);
+    return cubeBox.intersectsBox(targetBox);
+  }
+
+  function showText(message: string) {
+    const el = document.createElement("div");
+    el.id = "success-text";
+    el.textContent = message;
+    el.style.position = "absolute";
+    el.style.top = "20px";
+    el.style.left = "50%";
+    el.style.transform = "translateX(-50%)";
+    el.style.color = "lime";
+    el.style.fontSize = "32px";
+    el.style.fontWeight = "bold";
+    el.style.textShadow = "2px2px4px #000";
+    el.style.zIndex = "1000";
+    el.style.pointerEvents = "none";
+    el.style.transition = "opacity1.5s ease-out";
+    document.body.appendChild(el);
+  }
 })();
