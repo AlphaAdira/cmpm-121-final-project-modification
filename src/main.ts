@@ -71,6 +71,15 @@ const enableCameraControls = false;
   );
   scene.add(targetGround);
 
+  // Add a fail ground
+  const failGround = physics.addBox(
+    new THREE.Vector3(5, 1, 20), // fail ground size
+    new THREE.Vector3(-5, -4, 0), // Starting position
+    0, // Mass (0 = static object)
+    0xaa2222, // Red
+  );
+  scene.add(failGround);
+
   // Add an interactive physics cube
   const mainCube = physics.addBox(
     new THREE.Vector3(1, 1, 1), // Cube size
