@@ -1,6 +1,6 @@
-import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { PhysicsEngine } from "./physics/PhysicsEngine.ts";
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { PhysicsEngine } from './physics/PhysicsEngine.ts';
 
 // ---------- Settings ----------
 const enableCameraControls = false;
@@ -21,7 +21,7 @@ const enableCameraControls = false;
     75, // FOV
     globalThis.innerWidth / globalThis.innerHeight, // Aspect
     0.1, // Near
-    1000 // Far
+    1000, // Far
   );
   camera.position.z = 10;
 
@@ -58,7 +58,7 @@ const enableCameraControls = false;
     new THREE.Vector3(20, 1, 20), // Ground size
     new THREE.Vector3(0, -5, 0), // Starting position
     0, // Mass (0 = static object)
-    0x777777 // Gray
+    0x777777, // Gray
   );
   scene.add(ground);
 
@@ -67,7 +67,7 @@ const enableCameraControls = false;
     new THREE.Vector3(5, 1, 20), // Target ground size
     new THREE.Vector3(5, -4, 0), // Starting position
     0, // Mass (0 = static object)
-    0x22aa22 // Green
+    0x22aa22, // Green
   );
   scene.add(targetGround);
 
@@ -76,7 +76,7 @@ const enableCameraControls = false;
     new THREE.Vector3(5, 1, 20), // fail ground size
     new THREE.Vector3(-5, -4, 0), // Starting position
     0, // Mass (0 = static object)
-    0xaa2222 // Red
+    0xaa2222, // Red
   );
   scene.add(failGround);
 
@@ -85,7 +85,7 @@ const enableCameraControls = false;
     new THREE.Vector3(1, 1, 1), // Cube size
     new THREE.Vector3(0, 5, 0), // Starting position
     1, // Mass
-    0x00ff00 // Color
+    0x00ff00, // Color
   );
   scene.add(mainCube);
 
@@ -96,7 +96,7 @@ const enableCameraControls = false;
   let dragging = false;
 
   // Listen for mouse down
-  renderer.domElement.addEventListener("mousedown", (event) => {
+  renderer.domElement.addEventListener('mousedown', (event) => {
     if (event.button !== 0) return; // Only accept left click
 
     // Normalize mouse coordinates
@@ -115,14 +115,14 @@ const enableCameraControls = false;
   });
 
   // Listen for mouse move
-  renderer.domElement.addEventListener("mousemove", (event) => {
+  renderer.domElement.addEventListener('mousemove', (event) => {
     // Update normalized mouse coordinates every frame
     mouse.x = (event.clientX / globalThis.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / globalThis.innerHeight) * 2 + 1;
   });
 
   // Listen for mouse up
-  renderer.domElement.addEventListener("mouseup", () => {
+  renderer.domElement.addEventListener('mouseup', () => {
     if (dragging) {
       // Stop dragging
       dragging = false;
@@ -143,10 +143,7 @@ const enableCameraControls = false;
       // Create a drag plane perpendicular to the camera
       const planeNormal = new THREE.Vector3();
       camera.getWorldDirection(planeNormal);
-      const plane = new THREE.Plane(
-        planeNormal,
-        -planeNormal.dot(mainCube.position)
-      );
+      const plane = new THREE.Plane(planeNormal, -planeNormal.dot(mainCube.position));
 
       // Make cube follow the cursor position
       const point = raycaster.ray.intersectPlane(plane, new THREE.Vector3());
@@ -173,13 +170,13 @@ const enableCameraControls = false;
 
     // puzzle success
     if (isTouching(mainCube, targetGround) && !successShown) {
-      showText("success", "SUCCESS! You landed it! 🎉", "lime");
+      showText('success', 'SUCCESS! You landed it! 🎉', 'lime');
       successShown = true;
     }
 
     // puzzle fail
     if (isTouching(mainCube, failGround)) {
-      showText("fail", "That's not right... TRY AGAIN", "red");
+      showText('fail', "That's not right... TRY AGAIN", 'red');
       successShown = false;
     }
   }
@@ -198,27 +195,25 @@ const enableCameraControls = false;
     if (existing) {
       existing.remove();
     }
-    const opposite = document.getElementById(
-      elementID === "success" ? "fail" : "success"
-    );
+    const opposite = document.getElementById(elementID === 'success' ? 'fail' : 'success');
     if (opposite) {
       opposite.remove();
     }
 
-    const el = document.createElement("div");
+    const el = document.createElement('div');
     el.id = elementID;
     el.textContent = message;
-    el.style.position = "absolute";
-    el.style.top = "20px";
-    el.style.left = "50%";
-    el.style.transform = "translateX(-50%)";
+    el.style.position = 'absolute';
+    el.style.top = '20px';
+    el.style.left = '50%';
+    el.style.transform = 'translateX(-50%)';
     el.style.color = color;
-    el.style.fontSize = "32px";
-    el.style.fontWeight = "bold";
-    el.style.textShadow = "2px2px4px #000";
-    el.style.zIndex = "1000";
-    el.style.pointerEvents = "none";
-    el.style.transition = "opacity1.5s ease-out";
+    el.style.fontSize = '32px';
+    el.style.fontWeight = 'bold';
+    el.style.textShadow = '2px2px4px #000';
+    el.style.zIndex = '1000';
+    el.style.pointerEvents = 'none';
+    el.style.transition = 'opacity1.5s ease-out';
     document.body.appendChild(el);
   }
 })();

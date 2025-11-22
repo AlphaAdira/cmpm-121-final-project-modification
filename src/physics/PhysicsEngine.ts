@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
-import * as THREE from "three";
-import { AmmoPhysics } from "three/examples/jsm/physics/AmmoPhysics.js";
+import * as THREE from 'three';
+import { AmmoPhysics } from 'three/examples/jsm/physics/AmmoPhysics.js';
 
 // The shape of the actual AmmoPhysics object returned by the library
 export interface AmmoPhysicsObject {
@@ -16,7 +16,7 @@ export class PhysicsEngine {
   async init() {
     this.physics = (await AmmoPhysics()) as unknown as AmmoPhysicsObject;
     this.ready = true;
-    console.log("%c[Physics] Ready.", "color:#4caf50");
+    console.log('%c[Physics] Ready.', 'color:#4caf50');
   }
 
   isReady() {
@@ -25,7 +25,7 @@ export class PhysicsEngine {
 
   /** Adds any mesh with an optional mass */
   addMesh(mesh: THREE.Mesh, mass: number = 1) {
-    if (!this.ready) throw new Error("Physics not initialized yet.");
+    if (!this.ready) throw new Error('Physics not initialized yet.');
     this.physics.addMesh(mesh, mass);
 
     if (mass === 0) {
@@ -39,7 +39,7 @@ export class PhysicsEngine {
 
   /** Removes a mesh from physics simulation */
   removeMesh(mesh: THREE.Mesh) {
-    if (!this.ready) throw new Error("Physics not initialized yet.");
+    if (!this.ready) throw new Error('Physics not initialized yet.');
 
     // Only remove if the mesh has a physics body
     if (mesh.userData.physicsBody) {
@@ -50,12 +50,7 @@ export class PhysicsEngine {
   }
 
   /** Creates a physics-enabled box */
-  addBox(
-    size: THREE.Vector3,
-    position: THREE.Vector3,
-    mass: number = 1,
-    color = 0xffffff,
-  ) {
+  addBox(size: THREE.Vector3, position: THREE.Vector3, mass: number = 1, color = 0xffffff) {
     const geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
     const material = new THREE.MeshStandardMaterial({ color });
     const cube = new THREE.Mesh(geometry, material);
@@ -66,12 +61,7 @@ export class PhysicsEngine {
   }
 
   /** Creates a physics-enabled sphere */
-  addSphere(
-    radius: number,
-    position: THREE.Vector3,
-    mass: number = 1,
-    color = 0xffffff,
-  ) {
+  addSphere(radius: number, position: THREE.Vector3, mass: number = 1, color = 0xffffff) {
     const geometry = new THREE.SphereGeometry(radius, 32, 32);
     const material = new THREE.MeshStandardMaterial({ color });
     const sphere = new THREE.Mesh(geometry, material);
@@ -88,12 +78,12 @@ export class PhysicsEngine {
 
   /** Removes all physics bodies that are not attached to any mesh in the scene */
   cleanupOrphanBodies(scene: THREE.Scene) {
-    if (!this.ready) throw new Error("Physics not initialized yet.");
+    if (!this.ready) throw new Error('Physics not initialized yet.');
 
     // @ts-ignore – AmmoPhysics exposes physicsWorld
     const world = (this.physics as any).physicsWorld;
     if (!world) {
-      console.warn("[Physics] physicsWorld not found on AmmoPhysics instance.");
+      console.warn('[Physics] physicsWorld not found on AmmoPhysics instance.');
       return;
     }
 
