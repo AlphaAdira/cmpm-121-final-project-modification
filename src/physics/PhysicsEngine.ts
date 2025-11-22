@@ -14,7 +14,7 @@ export class PhysicsEngine {
   private ready = false;
 
   async init() {
-    this.physics = await AmmoPhysics() as unknown as AmmoPhysicsObject;
+    this.physics = (await AmmoPhysics()) as unknown as AmmoPhysicsObject;
     this.ready = true;
     console.log("%c[Physics] Ready.", "color:#4caf50");
   }

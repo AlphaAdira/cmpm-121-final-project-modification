@@ -21,7 +21,7 @@ const enableCameraControls = false;
     75, // FOV
     globalThis.innerWidth / globalThis.innerHeight, // Aspect
     0.1, // Near
-    1000, // Far
+    1000 // Far
   );
   camera.position.z = 10;
 
@@ -58,7 +58,7 @@ const enableCameraControls = false;
     new THREE.Vector3(20, 1, 20), // Ground size
     new THREE.Vector3(0, -5, 0), // Starting position
     0, // Mass (0 = static object)
-    0x777777, // Gray
+    0x777777 // Gray
   );
   scene.add(ground);
 
@@ -67,7 +67,7 @@ const enableCameraControls = false;
     new THREE.Vector3(5, 1, 20), // Target ground size
     new THREE.Vector3(5, -4, 0), // Starting position
     0, // Mass (0 = static object)
-    0x22aa22, // Green
+    0x22aa22 // Green
   );
   scene.add(targetGround);
 
@@ -76,7 +76,7 @@ const enableCameraControls = false;
     new THREE.Vector3(5, 1, 20), // fail ground size
     new THREE.Vector3(-5, -4, 0), // Starting position
     0, // Mass (0 = static object)
-    0xaa2222, // Red
+    0xaa2222 // Red
   );
   scene.add(failGround);
 
@@ -85,7 +85,7 @@ const enableCameraControls = false;
     new THREE.Vector3(1, 1, 1), // Cube size
     new THREE.Vector3(0, 5, 0), // Starting position
     1, // Mass
-    0x00ff00, // Color
+    0x00ff00 // Color
   );
   scene.add(mainCube);
 
@@ -136,7 +136,6 @@ const enableCameraControls = false;
   let successShown = false;
   function animate() {
     requestAnimationFrame(animate);
-
     // Drag cube
     if (dragging) {
       raycaster.setFromCamera(mouse, camera);
@@ -146,7 +145,7 @@ const enableCameraControls = false;
       camera.getWorldDirection(planeNormal);
       const plane = new THREE.Plane(
         planeNormal,
-        -planeNormal.dot(mainCube.position),
+        -planeNormal.dot(mainCube.position)
       );
 
       // Make cube follow the cursor position
@@ -200,7 +199,7 @@ const enableCameraControls = false;
       existing.remove();
     }
     const opposite = document.getElementById(
-      elementID === "success" ? "fail" : "success",
+      elementID === "success" ? "fail" : "success"
     );
     if (opposite) {
       opposite.remove();

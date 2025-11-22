@@ -1,4 +1,15 @@
 {
   "deno.enable": true, // Enable Deno TypeScript compiler
-  "deno.lint": true // Enable automatic linting
+  "deno.lint": true, // Enable automatic linting
+  "editor.formatOnSave": true,
+  "editor.formatOnType": true,
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }
