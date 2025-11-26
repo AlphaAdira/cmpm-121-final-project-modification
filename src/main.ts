@@ -136,7 +136,6 @@ const enableCameraControls = false;
   let successShown = false;
   function animate() {
     requestAnimationFrame(animate);
-
     // Drag cube
     if (dragging) {
       raycaster.setFromCamera(mouse, camera);

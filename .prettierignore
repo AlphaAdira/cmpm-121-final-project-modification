@@ -1,0 +1,9 @@
+# IGNORE EVERYTHING
+
+**
+
+!index.html
+!src/
+!src/main.ts
+!src/physics/
+!src/physics/PhysicsEngine.ts
