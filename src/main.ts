@@ -202,8 +202,10 @@ const enableCameraControls = false;
   InvBox.style.width = "150px";
   InvBox.style.height = "150px";
   InvBox.style.background = "#E2EAF4";
-  InvBox.style.borderRadius = "10px";
+  InvBox.style.borderRadius = "30px";
   InvBox.style.color = "black";
+  InvBox.style.zIndex = "1";
+  InvBox.style.pointerEvents = "none";
   document.body.appendChild(InvBox);
 
   function showText(elementID: string, message: string, color: string) {
@@ -222,7 +224,7 @@ const enableCameraControls = false;
     el.id = elementID;
     el.textContent = message;
     el.style.position = "absolute";
-    el.style.top = "50%";
+    el.style.top = "35%";
     el.style.left = "50%";
     el.style.transform = "translateX(-50%)";
     el.style.color = color;
