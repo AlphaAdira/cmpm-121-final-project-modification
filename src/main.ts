@@ -94,6 +94,8 @@ const enableCameraControls = false;
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
   let dragging = false;
+  const inventoryDiv = document.getElementById("inventory")!;
+  let inInventory = false;
 
   // Listen for mouse down
   renderer.domElement.addEventListener("mousedown", (event) => {
@@ -124,11 +126,24 @@ const enableCameraControls = false;
   // Listen for mouse up
   renderer.domElement.addEventListener("mouseup", () => {
     if (dragging) {
-      // Stop dragging
-      dragging = false;
+      const invRect = inventoryDiv.getBoundingClientRect();
+      const overInventory = // Check if mouse is over inventory
+        mouse.x >= (invRect.left / globalThis.innerWidth) * 2 - 1 &&
+        mouse.x <= (invRect.right / globalThis.innerWidth) * 2 - 1 &&
+        mouse.y >= -(invRect.bottom / globalThis.innerHeight) * 2 + 1 &&
+        mouse.y <= -(invRect.top / globalThis.innerHeight) * 2 + 1;
 
-      physics.addMesh(mainCube, 1);
-      physics.cleanupOrphanBodies(scene);
+      if (overInventory) {
+        // ✅ Drop into inventory
+        inInventory = true;
+        mainCube.visible = false;
+        physics.removeMesh(mainCube); // Stop physics
+        createInvItem("#00ff00");
+      } else {
+        physics.addMesh(mainCube, 1);
+        physics.cleanupOrphanBodies(scene);
+      }
+      dragging = false;
     }
   });
 
@@ -194,20 +209,6 @@ const enableCameraControls = false;
     return cubeBox.intersectsBox(targetBox);
   }
 
-  // ------- Inventory ----------
-  const InvBox = document.createElement("div");
-  InvBox.style.position = "absolute";
-  InvBox.style.top = "20px";
-  InvBox.style.left = "20px";
-  InvBox.style.width = "150px";
-  InvBox.style.height = "150px";
-  InvBox.style.background = "#E2EAF4";
-  InvBox.style.borderRadius = "30px";
-  InvBox.style.color = "black";
-  InvBox.style.zIndex = "1";
-  InvBox.style.pointerEvents = "none";
-  document.body.appendChild(InvBox);
-
   function showText(elementID: string, message: string, color: string) {
     const existing = document.getElementById(elementID);
     if (existing) {
@@ -236,4 +237,47 @@ const enableCameraControls = false;
     el.style.transition = "opacity1.5s ease-out";
     document.body.appendChild(el);
   }
+
+  // ------- Inventory ----------
+  const InvBox = document.createElement("div");
+  InvBox.id = "inventory";
+  InvBox.style.position = "absolute";
+  InvBox.style.top = "20px";
+  InvBox.style.left = "20px";
+  InvBox.style.width = "150px";
+  InvBox.style.height = "150px";
+  InvBox.style.background = "#E2EAF4";
+  InvBox.style.borderRadius = "30px";
+  InvBox.style.color = "black";
+  InvBox.style.zIndex = "1";
+  InvBox.style.pointerEvents = "none";
+  document.body.appendChild(InvBox);
+
+  function createInvItem(color: string) {
+    const existing = document.getElementById("invItem");
+    if (existing) {
+      existing.remove();
+    }
+    const item = document.createElement("div");
+    item.id = "invItem";
+    item.style.width = "50px";
+    item.style.height = "50px";
+    item.style.background = color;
+    item.style.margin = "10px auto";
+    item.style.borderRadius = "10px";
+    InvBox.appendChild(item);
+  }
+  // Add event listener for pulling cube out of inventory
+  inventoryDiv.addEventListener("click", () => {
+    const existing = document.getElementById("invItem");
+    if (existing) {
+      existing.remove();
+    }
+    if (inInventory && !dragging) {
+      inInventory = false;
+      mainCube.visible = true;
+      mainCube.position.copy(camera.position).add(camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(3));
+      physics.addMesh(mainCube, 1); // Re-enable physics
+    }
+  });
 })();
