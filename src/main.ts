@@ -136,6 +136,7 @@ const enableCameraControls = false;
   let successShown = false;
   function animate() {
     requestAnimationFrame(animate);
+
     // Drag cube
     if (dragging) {
       raycaster.setFromCamera(mouse, camera);
@@ -172,13 +173,13 @@ const enableCameraControls = false;
     renderer.render(scene, camera);
 
     // puzzle success
-    if (isTouching(mainCube, targetGround) && !successShown) {
+    if (isTouching3D(mainCube, targetGround) && !successShown) {
       showText("success", "SUCCESS! You landed it! 🎉", "lime");
       successShown = true;
     }
 
     // puzzle fail
-    if (isTouching(mainCube, failGround)) {
+    if (isTouching3D(mainCube, failGround)) {
       showText("fail", "That's not right... TRY AGAIN", "red");
       successShown = false;
     }
@@ -187,11 +188,23 @@ const enableCameraControls = false;
   animate();
 
   // ------- Success Call ----------
-  function isTouching(cube: THREE.Mesh, target: THREE.Mesh): boolean {
+  function isTouching3D(cube: THREE.Mesh, target: THREE.Mesh): boolean {
     const cubeBox = new THREE.Box3().setFromObject(cube);
     const targetBox = new THREE.Box3().setFromObject(target);
     return cubeBox.intersectsBox(targetBox);
   }
+
+  // ------- Inventory ----------
+  const InvBox = document.createElement("div");
+  InvBox.style.position = "absolute";
+  InvBox.style.bottom = "20px";
+  InvBox.style.right = "20px";
+  InvBox.style.width = "120px";
+  InvBox.style.height = "120px";
+  InvBox.style.background = "#E2EAF4";
+  InvBox.style.borderRadius = "10px";
+  InvBox.style.color = "black";
+  document.body.appendChild(InvBox);
 
   function showText(elementID: string, message: string, color: string) {
     const existing = document.getElementById(elementID);
