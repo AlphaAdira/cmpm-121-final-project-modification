@@ -14,6 +14,7 @@ const enableCameraControls = false;
 
   // Create scene
   const scene = new THREE.Scene();
+  const unusedInt: number = 4;
 
   // ---------- Camera Controls ----------
   // Create camera
