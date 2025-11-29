@@ -14,6 +14,7 @@ const enableCameraControls = false;
 
   // Create scene
   const scene = new THREE.Scene();
+  const unusedInt: number = 5;
 
   // ---------- Camera Controls ----------
   // Create camera
@@ -276,9 +277,9 @@ const enableCameraControls = false;
     if (inInventory && !dragging) {
       inInventory = false;
       mainCube.visible = true;
-      mainCube.position.copy(camera.position).add(
-        camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(3),
-      );
+      mainCube.position
+        .copy(camera.position)
+        .add(camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(3));
       physics.addMesh(mainCube, 1); // Re-enable physics
     }
   });
