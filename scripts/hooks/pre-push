@@ -1,12 +1,11 @@
 #!/bin/bash
 # Pre-push hook to verify build succeeds before pushing to remote
 
-echo "Running pre-push checks [User Run]..."
+echo "RUNNING PRE-PUSH CHECKS..."
 
 # Run the same CI checks that GitHub Actions will run
 if ! deno task ci; then
-    echo "CI CHECKS FAILED: PREVENTING PUSH"
-    echo "FIX ERRORS AND TRY AGAIN"
+echo "CI CHECKS FAILED: PUSH REJECTED
     exit 1
 fi
 
