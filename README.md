@@ -56,3 +56,5 @@ We aren’t sure what type of game we’re planning to make, but we do know that
 When we look back at how we got the F1 requirements done, our plan didn't really changed from when we first made the team. At the start we didn’t really know what kind of game we wanted, so our ideas were super broad. We still don't really know what type of game we're planning to make. We were just simply figuring out how all of this works and trying to satify the F1 requirement while we still think about what our game will be.
 
 While our roles didn't change or what task each role was supposed to fullfill, we did change how we're tackling our assignments going forward. Since Tools and Engine Lead both work hand-to-hand, we decided that going forward, the Design Lead won't work on anything until the Engine and Tools Lead got everything done. Which allowed us to make this simple puzzle on time without any issues.
+
+#### ---End of Entry------------------------------------------------------------------

@@ -1,6 +1,8 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { PhysicsEngine } from "./physics/PhysicsEngine.ts";
+import { PhysicsEngine } from "./classes/PhysicsEngine.ts";
+import { GameScene } from "./classes/GameScene.ts";
+import { SceneManager } from "./classes/GameScene.ts";
 
 // ---------- Settings ----------
 const enableCameraControls = false;
@@ -12,8 +14,8 @@ const enableCameraControls = false;
   const physics = new PhysicsEngine();
   await physics.init();
 
-  // Create scene
-  const scene = new THREE.Scene();
+  // Create global scene manager
+  const sceneManager = new SceneManager();
 
   // ---------- Camera Controls ----------
   // Create camera
@@ -48,37 +50,40 @@ const enableCameraControls = false;
   }
 
   // ---------- Scene Objects ----------
+  // Create scenes
+  const scene1 = new GameScene(physics);
+
   // Add lighting
-  const light = new THREE.DirectionalLight(0xffffff, 1);
-  light.position.set(1, 1, 1);
-  scene.add(light);
+  const light1 = new THREE.DirectionalLight(0xffffff, 1);
+  light1.position.set(1, 1, 1);
+  scene1.addLight(light1);
 
   // Add a static ground
-  const ground = physics.addBox(
+  const ground1 = physics.addBox(
     new THREE.Vector3(20, 1, 20), // Ground size
     new THREE.Vector3(0, -5, 0), // Starting position
     0, // Mass (0 = static object)
     0x777777, // Gray
   );
-  scene.add(ground);
+  scene1.addMesh(ground1);
 
   // Add a target ground
-  const targetGround = physics.addBox(
-    new THREE.Vector3(5, 1, 20), // Target ground size
+  const winGround = physics.addBox(
+    new THREE.Vector3(5, 1, 20), // Win ground size
     new THREE.Vector3(5, -4, 0), // Starting position
     0, // Mass (0 = static object)
     0x22aa22, // Green
   );
-  scene.add(targetGround);
+  scene1.addMesh(winGround);
 
   // Add a fail ground
   const failGround = physics.addBox(
-    new THREE.Vector3(5, 1, 20), // fail ground size
+    new THREE.Vector3(5, 1, 20), // Fail ground size
     new THREE.Vector3(-5, -4, 0), // Starting position
     0, // Mass (0 = static object)
     0xaa2222, // Red
   );
-  scene.add(failGround);
+  scene1.addMesh(failGround);
 
   // Add an interactive physics cube
   const mainCube = physics.addBox(
@@ -87,7 +92,10 @@ const enableCameraControls = false;
     1, // Mass
     0x00ff00, // Color
   );
-  scene.add(mainCube);
+  scene1.addMesh(mainCube);
+
+  // Add scenes to scene manager
+  sceneManager.addScene("room1", scene1);
 
   // ---------- Drag & Drop Mechanics ----------
   // Variables
@@ -128,7 +136,6 @@ const enableCameraControls = false;
       dragging = false;
 
       physics.addMesh(mainCube, 1);
-      physics.cleanupOrphanBodies(scene);
     }
   });
 
@@ -152,7 +159,7 @@ const enableCameraControls = false;
       const point = raycaster.ray.intersectPlane(plane, new THREE.Vector3());
       if (point) {
         // Keep cube above ground
-        const groundTop = ground.position.y + ground.scale.y;
+        const groundTop = ground1.position.y + ground1.scale.y;
 
         if (point.y < groundTop) {
           point.y = groundTop;
@@ -169,21 +176,28 @@ const enableCameraControls = false;
     if (enableCameraControls) {
       cameraControls?.update();
     }
-    renderer.render(scene, camera);
+    const currentScene = sceneManager.getCurrentScene();
+    if (currentScene) {
+      renderer.render(currentScene.scene, camera);
+    }
 
-    // puzzle success
-    if (isTouching(mainCube, targetGround) && !successShown) {
+    // Puzzle success
+    if (isTouching(mainCube, winGround) && !successShown) {
       showText("success", "SUCCESS! You landed it! 🎉", "lime");
       successShown = true;
     }
 
-    // puzzle fail
+    // Puzzle fail
     if (isTouching(mainCube, failGround)) {
       showText("fail", "That's not right... TRY AGAIN", "red");
       successShown = false;
     }
   }
 
+  // Set initial scene
+  sceneManager.switchScene("room1");
+  
+  // Initial animate call
   animate();
 
   // ------- Success Call ----------
