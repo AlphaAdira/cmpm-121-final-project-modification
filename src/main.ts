@@ -61,7 +61,6 @@ const enableCameraControls = false;
   // ---------- Scene Objects ----------
   // Create scenes
   const scene1 = new GameScene(physics);
-
   // Add lighting
   const light1 = new THREE.DirectionalLight(0xffffff, 1);
   light1.position.set(1, 1, 1);
@@ -328,9 +327,9 @@ const enableCameraControls = false;
     // Restore cube
     inInventory = false;
     mainCube.visible = true;
-    mainCube.position.copy(camera.position).add(
-      camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(10),
-    );
+    mainCube.position
+      .copy(camera.position)
+      .add(camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(10));
     physics.addMesh(mainCube, 1); // Re-add to physics
     physicsActive = true;
   });

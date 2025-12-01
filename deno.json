@@ -9,10 +9,15 @@
     "ci": "deno task check && deno task lint && deno task fmt --check && deno task build"
   },
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "esnext"]
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "strict": true,
+    "noImplicitAny": true
   },
   "lint": {
-    "include": ["src/"]
+    "include": ["src/"],
+    "rules": {
+      "tags": ["recommended"]
+    }
   },
   "fmt": {
     "include": ["src/"]
