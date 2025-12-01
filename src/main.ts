@@ -93,6 +93,7 @@ const enableCameraControls = false;
     0x00ff00, // Color
   );
   scene1.addMesh(mainCube);
+  let physicsActive = true; // Track if cube is under physics simulation
 
   // Add scenes to scene manager
   sceneManager.addScene("room1", scene1);
@@ -119,8 +120,9 @@ const enableCameraControls = false;
 
     if (intersects.length > 0) {
       dragging = true;
-
+      inInventory = false; // In case we're pulling from inventory
       physics.removeMesh(mainCube);
+      physicsActive = false;
     }
   });
 
@@ -132,24 +134,27 @@ const enableCameraControls = false;
   });
 
   // Listen for mouse up
-  renderer.domElement.addEventListener("mouseup", () => {
+  renderer.domElement.addEventListener("mouseup", (event: MouseEvent) => {
     if (dragging) {
       const invRect = inventoryDiv.getBoundingClientRect();
-      const overInventory = // Check if mouse is over inventory
-        mouse.x >= (invRect.left / globalThis.innerWidth) * 2 - 1 &&
-        mouse.x <= (invRect.right / globalThis.innerWidth) * 2 - 1 &&
-        mouse.y >= -(invRect.bottom / globalThis.innerHeight) * 2 + 1 &&
-        mouse.y <= -(invRect.top / globalThis.innerHeight) * 2 + 1;
+      const mouseX = event.clientX;
+      const mouseY = event.clientY;
+
+      const overInventory = mouseX >= invRect.left &&
+        mouseX <= invRect.right &&
+        mouseY >= invRect.top &&
+        mouseY <= invRect.bottom;
 
       if (overInventory) {
-        // ✅ Drop into inventory
         inInventory = true;
         mainCube.visible = false;
-        physics.removeMesh(mainCube); // Stop physics
         createInvItem("#00ff00");
       } else {
-        physics.addMesh(mainCube, 1);
-        physics.cleanupOrphanBodies(scene1.scene);
+        mainCube.visible = true;
+        if (!physicsActive) {
+          physics.addMesh(mainCube, 1);
+          physicsActive = true;
+        }
       }
       dragging = false;
     }
