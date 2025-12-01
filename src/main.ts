@@ -314,21 +314,24 @@ const enableCameraControls = false;
     item.style.background = color;
     item.style.margin = "10px auto";
     item.style.borderRadius = "10px";
+    item.style.pointerEvents = "auto";
     InvBox.appendChild(item);
   }
   // Add event listener for pulling cube out of inventory
   inventoryDiv?.addEventListener("click", () => {
+    if (!inInventory || dragging) return;
+
+    // Remove visual item
     const existing = document.getElementById("invItem");
-    if (existing) {
-      existing.remove();
-    }
-    if (inInventory && !dragging) {
-      inInventory = false;
-      mainCube.visible = true;
-      mainCube.position.copy(camera.position).add(
-        camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(3),
-      );
-      physics.addMesh(mainCube, 1); // Re-enable physics
-    }
+    if (existing) existing.remove();
+
+    // Restore cube
+    inInventory = false;
+    mainCube.visible = true;
+    mainCube.position.copy(camera.position).add(
+      camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(10),
+    );
+    physics.addMesh(mainCube, 1); // Re-add to physics
+    physicsActive = true;
   });
 })();
