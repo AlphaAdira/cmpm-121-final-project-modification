@@ -149,7 +149,7 @@ const enableCameraControls = false;
         createInvItem("#00ff00");
       } else {
         physics.addMesh(mainCube, 1);
-        physics.cleanupOrphanBodies(scene);
+        physics.cleanupOrphanBodies(scene1.scene);
       }
       dragging = false;
     }
