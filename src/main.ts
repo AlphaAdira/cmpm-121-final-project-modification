@@ -196,7 +196,7 @@ const enableCameraControls = false;
 
   // Set initial scene
   sceneManager.switchScene("room1");
-  
+
   // Initial animate call
   animate();
 
