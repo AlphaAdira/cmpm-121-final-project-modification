@@ -17,6 +17,8 @@ const enableCameraControls = false;
   // Create global scene manager
   const sceneManager = new SceneManager();
 
+  let lastTime = globalThis.performance?.now() ?? 0;
+
   // ---------- Camera Controls ----------
   // Create camera
   const camera = new THREE.PerspectiveCamera(
@@ -152,6 +154,10 @@ const enableCameraControls = false;
       } else {
         mainCube.visible = true;
         if (!physicsActive) {
+          if (mainCube.userData.physicsBody) {
+            physics.removeMesh(mainCube);
+            mainCube.userData.physicsBody = null;
+          }
           physics.addMesh(mainCube, 1);
           physicsActive = true;
         }
@@ -162,8 +168,15 @@ const enableCameraControls = false;
 
   // ---------- Animation Loop ----------
   let successShown = false;
-  function animate() {
+  function animate(time = lastTime) {
     requestAnimationFrame(animate);
+
+    const deltaTime = (time - lastTime) * 0.001; // Convert ms → seconds
+    lastTime = time;
+
+    if (physics.isReady() && (physics as any).physics?.update) {
+      (physics as any).physics.update(deltaTime);
+    }
 
     // Drag cube
     if (dragging) {
@@ -190,6 +203,7 @@ const enableCameraControls = false;
         // Set cube position to cursor
         mainCube.position.copy(point);
       }
+      mainCube.userData.kinematic = true;
     } else {
       mainCube.userData.kinematic = false;
     }
