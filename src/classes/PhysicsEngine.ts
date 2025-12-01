@@ -23,6 +23,13 @@ export class PhysicsEngine {
     return this.ready;
   }
 
+  /** Update the underlying physics simulation (deltaTime in seconds) */
+  public update(deltaTime: number) {
+    if (!this.ready) throw new Error("Physics not initialized yet.");
+    // forward to underlying AmmoPhysics object
+    (this.physics as AmmoPhysicsObject).update(deltaTime);
+  }
+
   /** Adds any mesh with an optional mass */
   addMesh(mesh: THREE.Mesh, mass: number = 1) {
     if (!this.ready) throw new Error("Physics not initialized yet.");

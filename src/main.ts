@@ -174,8 +174,9 @@ const enableCameraControls = false;
     const deltaTime = (time - lastTime) * 0.001; // Convert ms → seconds
     lastTime = time;
 
-    if (physics.isReady() && (physics as any).physics?.update) {
-      (physics as any).physics.update(deltaTime);
+    if (physics.isReady()) {
+      // Use the public update() method rather than reaching into the private internals
+      physics.update(deltaTime);
     }
 
     // Drag cube
