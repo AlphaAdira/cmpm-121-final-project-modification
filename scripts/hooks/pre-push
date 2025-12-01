@@ -1,0 +1,27 @@
+#!/bin/bash
+# Pre-push hook to verify build succeeds before pushing to remote
+
+set -o pipefail  # Ensure pipe failures are caught
+
+LOG_FILE="/tmp/git-pre-push.log"
+echo "---------- NEW LOG ---------------------" | tee -a "$LOG_FILE"
+echo "========================================" | tee -a "$LOG_FILE"
+echo "RUNNING PRE-PUSH CHECKS..." | tee -a "$LOG_FILE"
+echo "$(date)" | tee -a "$LOG_FILE"
+echo "========================================" | tee -a "$LOG_FILE"
+
+# Run the same CI checks that GitHub Actions will run
+if ! deno task ci 2>&1 | tee -a "$LOG_FILE"; then
+    echo "" | tee -a "$LOG_FILE"
+    echo "========================================" | tee -a "$LOG_FILE"
+    echo "CI CHECKS FAILED: PUSH REJECTED" | tee -a "$LOG_FILE"
+    echo "Check log: $LOG_FILE" | tee -a "$LOG_FILE"
+    echo "========================================" | tee -a "$LOG_FILE"
+    exit 1
+fi
+
+echo "" | tee -a "$LOG_FILE"
+echo "========================================" | tee -a "$LOG_FILE"
+echo "CI CHECKS PASSED: PUSH APPROVED" | tee -a "$LOG_FILE"
+echo "========================================" | tee -a "$LOG_FILE"
+exit 0
