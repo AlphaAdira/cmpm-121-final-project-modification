@@ -10,6 +10,13 @@ const enableCameraControls = false;
 // ---------- Main Program ----------
 // Wrap in async IIFE to support older browsers
 (async () => {
+  // Ensure DOM is ready before touching document.body / DOM elements.
+  if (document.readyState === "loading") {
+    await new Promise<void>((resolve) =>
+      document.addEventListener("DOMContentLoaded", () => resolve())
+    );
+  }
+
   // Create global physics variables
   const physics = new PhysicsEngine();
   await physics.init();
@@ -105,7 +112,8 @@ const enableCameraControls = false;
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
   let dragging = false;
-  const inventoryDiv = document.getElementById("inventory")!;
+  // inventoryDiv will be created later — declare it now so handlers can safely check it.
+  let inventoryDiv: HTMLElement | null = null;
   let inInventory = false;
 
   // Listen for mouse down
@@ -138,11 +146,15 @@ const enableCameraControls = false;
   // Listen for mouse up
   renderer.domElement.addEventListener("mouseup", (event: MouseEvent) => {
     if (dragging) {
-      const invRect = inventoryDiv.getBoundingClientRect();
+      // inventoryDiv can be null (not created) — treat as not over inventory
+      const invRect = inventoryDiv
+        ? inventoryDiv.getBoundingClientRect()
+        : null;
       const mouseX = event.clientX;
       const mouseY = event.clientY;
 
-      const overInventory = mouseX >= invRect.left &&
+      const overInventory = invRect !== null &&
+        mouseX >= invRect.left &&
         mouseX <= invRect.right &&
         mouseY >= invRect.top &&
         mouseY <= invRect.bottom;
@@ -287,6 +299,8 @@ const enableCameraControls = false;
   InvBox.style.zIndex = "1";
   InvBox.style.pointerEvents = "none";
   document.body.appendChild(InvBox);
+  // Set the inventoryDiv reference now that the element exists
+  inventoryDiv = InvBox;
 
   function createInvItem(color: string) {
     const existing = document.getElementById("invItem");
@@ -303,7 +317,7 @@ const enableCameraControls = false;
     InvBox.appendChild(item);
   }
   // Add event listener for pulling cube out of inventory
-  inventoryDiv.addEventListener("click", () => {
+  inventoryDiv?.addEventListener("click", () => {
     const existing = document.getElementById("invItem");
     if (existing) {
       existing.remove();
