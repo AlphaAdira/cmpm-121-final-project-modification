@@ -1,142 +1,166 @@
 // deno-lint-ignore-file no-explicit-any
 import * as THREE from "three";
-import { AmmoPhysics } from "three/examples/jsm/physics/AmmoPhysics.js";
-
-// The shape of the actual AmmoPhysics object returned by the library
-export interface AmmoPhysicsObject {
-  addMesh(mesh: THREE.Mesh, mass?: number): void;
-  // Add update function (not included in ammo.js by default)
-  update(deltaTime: number): void;
-}
 
 export class PhysicsEngine {
-  private physics!: AmmoPhysicsObject;
+  private Ammo: any;
+  private physicsWorld: any;
+  private rigidBodies: THREE.Mesh[] = [];
+  private tmpTransform: any;
+
   private ready = false;
-
-  async init() {
-    this.physics = (await AmmoPhysics()) as unknown as AmmoPhysicsObject;
-    this.ready = true;
-    console.log("%c[Physics] Ready.", "color:#4caf50");
-  }
-
   isReady() {
     return this.ready;
   }
 
-  /** Update the underlying physics simulation (deltaTime in seconds) */
-  public update(deltaTime: number) {
-    if (!this.ready) throw new Error("Physics not initialized yet.");
+  constructor() {}
 
-    // Some Ammo wrappers expose an `update` method; only call it if present.
-    const maybePhysics: any = this.physics;
-    if (typeof maybePhysics.update === "function") {
-      maybePhysics.update(deltaTime);
-    }
+  async init() {
+    // Load Ammo.js
+    // If using ES module Ammo, modify accordingly
+    // @ts-ignore - global Ammo
+    this.Ammo = await Ammo();
+
+    const gravity = new this.Ammo.btVector3(0, -9.81, 0);
+
+    const config = new this.Ammo.btDefaultCollisionConfiguration();
+    const dispatcher = new this.Ammo.btCollisionDispatcher(config);
+    const broadphase = new this.Ammo.btDbvtBroadphase();
+    const solver = new this.Ammo.btSequentialImpulseConstraintSolver();
+
+    this.physicsWorld = new this.Ammo.btDiscreteDynamicsWorld(
+      dispatcher,
+      broadphase,
+      solver,
+      config,
+    );
+    this.physicsWorld.setGravity(gravity);
+
+    this.tmpTransform = new this.Ammo.btTransform();
+    this.ready = true;
   }
 
-  /** Adds any mesh with an optional mass */
-  addMesh(mesh: THREE.Mesh, mass: number = 1) {
-    if (!this.ready) throw new Error("Physics not initialized yet.");
-    this.physics.addMesh(mesh, mass);
-
-    if (mass === 0) {
-      mesh.userData.kinematic = true;
-    } else {
-      mesh.userData.kinematic = false;
-    }
-
-    return mesh;
-  }
-
-  /** Removes a mesh from physics simulation */
-  removeMesh(mesh: THREE.Mesh) {
-    if (!this.ready) throw new Error("Physics not initialized yet.");
-
-    // Only remove if the mesh has a physics body
-    if (mesh.userData.physicsBody) {
-      // @ts-ignore:
-      this.physics.world.removeRigidBody(mesh.userData.physicsBody);
-      delete mesh.userData.physicsBody; // clear the reference
-    }
-  }
-
-  /** Creates a physics-enabled box */
+  // ------------------------------------------------------
+  // Create & register a physics box mesh
+  // ------------------------------------------------------
   addBox(
     size: THREE.Vector3,
     position: THREE.Vector3,
-    mass: number = 1,
-    color = 0xffffff,
-  ) {
+    mass: number,
+    color: number = 0xffffff,
+  ): THREE.Mesh {
     const geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
     const material = new THREE.MeshStandardMaterial({ color });
-    const cube = new THREE.Mesh(geometry, material);
-    cube.position.copy(position);
+    const mesh = new THREE.Mesh(geometry, material);
 
-    this.physics.addMesh(cube, mass);
-    return cube;
+    mesh.position.copy(position);
+
+    this.addMesh(mesh, mass);
+    return mesh;
   }
 
-  /** Creates a physics-enabled sphere */
-  addSphere(
-    radius: number,
-    position: THREE.Vector3,
-    mass: number = 1,
-    color = 0xffffff,
-  ) {
-    const geometry = new THREE.SphereGeometry(radius, 32, 32);
-    const material = new THREE.MeshStandardMaterial({ color });
-    const sphere = new THREE.Mesh(geometry, material);
-    sphere.position.copy(position);
+  // ------------------------------------------------------
+  // Add a mesh into the physics world
+  // ------------------------------------------------------
+  addMesh(mesh: THREE.Mesh, mass: number) {
+    if (!this.ready) return;
 
-    this.physics.addMesh(sphere, mass);
-    return sphere;
-  }
-
-  /** Physics body getter */
-  public getPhysicsBody(mesh: THREE.Mesh) {
-    return mesh.userData.physicsBody; // this is the Ammo.btRigidBody
-  }
-
-  /** Removes all physics bodies that are not attached to any mesh in the scene */
-  cleanupOrphanBodies(scene: THREE.Scene) {
-    if (!this.ready) throw new Error("Physics not initialized yet.");
-
-    // @ts-ignore – AmmoPhysics exposes physicsWorld
-    const world = (this.physics as any).physicsWorld;
-    if (!world) {
-      console.warn("[Physics] physicsWorld not found on AmmoPhysics instance.");
-      return;
+    // Remove old body if replacing
+    if (mesh.userData.physicsBody) {
+      this.removeMesh(mesh);
     }
 
-    const numBodies = world.getNumCollisionObjects();
+    const { Ammo } = this;
 
-    // Collect all physics bodies owned by scene meshes
-    const meshBodies = new Set<any>();
-    scene.traverse((obj) => {
-      const mesh = obj as THREE.Mesh;
-      if (mesh.userData.physicsBody) {
-        meshBodies.add(mesh.userData.physicsBody);
+    // Get box size from geometry bounds
+    mesh.geometry.computeBoundingBox();
+    const box = mesh.geometry.boundingBox!;
+    const halfExtents = new Ammo.btVector3(
+      (box.max.x - box.min.x) * 0.5,
+      (box.max.y - box.min.y) * 0.5,
+      (box.max.z - box.min.z) * 0.5,
+    );
+
+    const shape = new Ammo.btBoxShape(halfExtents);
+    shape.setMargin(0.05);
+
+    const transform = new Ammo.btTransform();
+    transform.setIdentity();
+    transform.setOrigin(new Ammo.btVector3(mesh.position.x, mesh.position.y, mesh.position.z));
+
+    const quaternion = mesh.quaternion;
+    transform.setRotation(
+      new Ammo.btQuaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w),
+    );
+
+    const motionState = new Ammo.btDefaultMotionState(transform);
+
+    const localInertia = new Ammo.btVector3(0, 0, 0);
+    if (mass > 0) shape.calculateLocalInertia(mass, localInertia);
+
+    const rbInfo = new Ammo.btRigidBodyConstructionInfo(
+      mass,
+      motionState,
+      shape,
+      localInertia,
+    );
+    const body = new Ammo.btRigidBody(rbInfo);
+
+    // Store reference
+    mesh.userData.physicsBody = body;
+
+    // Add to world
+    this.physicsWorld.addRigidBody(body);
+
+    if (mass > 0) {
+      this.rigidBodies.push(mesh);
+    }
+  }
+
+  // ------------------------------------------------------
+  // Remove mesh from physics world
+  // ------------------------------------------------------
+  removeMesh(mesh: THREE.Mesh) {
+    const body = mesh.userData.physicsBody;
+    if (!body) return;
+
+    this.physicsWorld.removeRigidBody(body);
+
+    // Remove from rigid body list
+    this.rigidBodies = this.rigidBodies.filter((m) => m !== mesh);
+
+    mesh.userData.physicsBody = null;
+  }
+
+  // ------------------------------------------------------
+  // Update physics simulation
+  // ------------------------------------------------------
+  update(deltaTime: number) {
+    if (!this.ready) return;
+
+    const { physicsWorld, tmpTransform } = this;
+
+    physicsWorld.stepSimulation(deltaTime, 10);
+
+    // Sync rigid bodies back to mesh transforms
+    for (const mesh of this.rigidBodies) {
+      const body = mesh.userData.physicsBody;
+      if (!body) continue;
+
+      // Skip rigid body update while user is dragging (kinematic override)
+      if (mesh.userData.kinematic === true) {
+        continue;
       }
-    });
 
-    const collisionArray = world.getCollisionObjectArray();
-    const toRemove: any[] = [];
+      const motionState = body.getMotionState();
+      if (motionState) {
+        motionState.getWorldTransform(tmpTransform);
 
-    // Find orphan bodies
-    for (let i = 0; i < numBodies; i++) {
-      const body = collisionArray.at(i);
-      if (!meshBodies.has(body)) {
-        toRemove.push(body);
+        const origin = tmpTransform.getOrigin();
+        const rotation = tmpTransform.getRotation();
+
+        mesh.position.set(origin.x(), origin.y(), origin.z());
+        mesh.quaternion.set(rotation.x(), rotation.y(), rotation.z(), rotation.w());
       }
-    }
-
-    // Remove all orphans
-    for (const body of toRemove) {
-      world.removeRigidBody(body);
-    }
-
-    if (toRemove.length > 0) {
-      console.log(`[Physics] Removed ${toRemove.length} orphan rigid bodies`);
     }
   }
 }

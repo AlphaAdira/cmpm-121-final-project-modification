@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { PhysicsEngine } from "./classes/PhysicsEngine.ts";
 import { GameScene } from "./classes/GameScene.ts";
-import { SceneManager } from "./classes/GameScene.ts";
+import { SceneManager } from "./classes/SceneManager.ts";
 
 // ---------- Settings ----------
 const enableCameraControls = false;
@@ -25,6 +25,35 @@ const enableCameraControls = false;
   const sceneManager = new SceneManager();
 
   let lastTime = globalThis.performance?.now() ?? 0;
+
+
+  // ---------- Scene Navigation Buttons ----------
+  const btnLeft = document.createElement("div");
+  btnLeft.innerHTML = "⟵";
+  btnLeft.style.position = "absolute";
+  btnLeft.style.left = "20px";
+  btnLeft.style.top = "50%";
+  btnLeft.style.transform = "translateY(-50%)";
+  btnLeft.style.fontSize = "48px";
+  btnLeft.style.cursor = "pointer";
+  btnLeft.style.userSelect = "none";
+  btnLeft.style.zIndex = "10";
+  btnLeft.style.display = "none"; // hidden by default
+  document.body.appendChild(btnLeft);
+
+  const btnRight = document.createElement("div");
+  btnRight.innerHTML = "⟶";
+  btnRight.style.position = "absolute";
+  btnRight.style.right = "20px";
+  btnRight.style.top = "50%";
+  btnRight.style.transform = "translateY(-50%)";
+  btnRight.style.fontSize = "48px";
+  btnRight.style.cursor = "pointer";
+  btnRight.style.userSelect = "none";
+  btnRight.style.zIndex = "10";
+  btnRight.style.display = "none"; // hidden by default
+  document.body.appendChild(btnRight);
+
 
   // ---------- Camera Controls ----------
   // Create camera
@@ -61,10 +90,15 @@ const enableCameraControls = false;
   // ---------- Scene Objects ----------
   // Create scenes
   const scene1 = new GameScene(physics);
+  const scene2 = new GameScene(physics);
+
   // Add lighting
   const light1 = new THREE.DirectionalLight(0xffffff, 1);
   light1.position.set(1, 1, 1);
   scene1.addLight(light1);
+
+  const light2 = new THREE.AmbientLight(0xffffff, 1);
+  scene2.addLight(light2);
 
   // Add a static ground
   const ground1 = physics.addBox(
@@ -74,6 +108,14 @@ const enableCameraControls = false;
     0x777777, // Gray
   );
   scene1.addMesh(ground1);
+
+  const ground2 = physics.addBox(
+    new THREE.Vector3(20, 1, 20),
+    new THREE.Vector3(0, -5, 0),
+    0,
+    0x4444ff
+  );
+  scene2.addMesh(ground2);
 
   // Add a target ground
   const winGround = physics.addBox(
@@ -105,6 +147,29 @@ const enableCameraControls = false;
 
   // Add scenes to scene manager
   sceneManager.addScene("room1", scene1);
+  sceneManager.addScene("room2", scene2);
+
+
+  // ---------- Scene Navigation Logic ----------
+  // Hook up scene switching
+  btnLeft.addEventListener("click", () => {
+    sceneManager.goPrev();
+    updateSceneButtons();
+  });
+
+  btnRight.addEventListener("click", () => {
+    sceneManager.goNext();
+    updateSceneButtons();
+  });
+
+  function updateSceneButtons() {
+    const index = sceneManager.getCurrentSceneIndex();
+    const count = sceneManager.getSceneCount();
+
+    btnLeft.style.display = index > 0 ? "block" : "none";
+    btnRight.style.display = index < count - 1 ? "block" : "none";
+  }
+
 
   // ---------- Drag & Drop Mechanics ----------
   // Variables
@@ -224,8 +289,13 @@ const enableCameraControls = false;
     if (enableCameraControls) {
       cameraControls?.update();
     }
+
     const currentScene = sceneManager.getCurrentScene();
     if (currentScene) {
+      updateSceneButtons();
+
+      const delta = deltaTime;
+      currentScene.physics.update(delta);
       renderer.render(currentScene.scene, camera);
     }
 
@@ -244,6 +314,7 @@ const enableCameraControls = false;
 
   // Set initial scene
   sceneManager.switchScene("room1");
+  updateSceneButtons();
 
   // Initial animate call
   animate();

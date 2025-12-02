@@ -19,11 +19,7 @@ export class GameScene {
     this.objects.push(mesh);
     this.scene.add(mesh);
 
-    if (mass > 0) {
-      this.physics.addMesh(mesh, mass);
-    } else {
-      this.physics.addMesh(mesh, 0);
-    }
+    this.physics.addMesh(mesh, mass);
   }
 
   removeMesh(mesh: THREE.Mesh) {
@@ -43,7 +39,7 @@ export class GameScene {
     this.lights = this.lights.filter((l) => l !== light);
   }
 
-  // ---------- Save State ----------
+  // ---------- Save Scene State ----------
   saveState(): { meshes: any[]; lights: any[] } {
     const meshesState = this.objects.map((mesh) => ({
       id: mesh.uuid,
@@ -65,7 +61,7 @@ export class GameScene {
     return { meshes: meshesState, lights: lightsState };
   }
 
-  // ---------- Load State ----------
+  // ---------- Load Scene State ----------
   loadState(state: { meshes: any[]; lights: any[] }) {
     state.meshes.forEach((meshState, i) => {
       const mesh = this.objects[i];
@@ -96,27 +92,5 @@ export class GameScene {
     this.lights.forEach((light) => this.scene.remove(light));
     this.objects = [];
     this.lights = [];
-  }
-}
-
-export class SceneManager {
-  private scenes: Map<string, GameScene> = new Map();
-  private currentSceneKey: string | null = null;
-
-  addScene(key: string, scene: GameScene) {
-    this.scenes.set(key, scene);
-  }
-
-  switchScene(key: string) {
-    if (!this.scenes.has(key)) {
-      console.warn(`Scene ${key} does not exist`);
-      return;
-    }
-    this.currentSceneKey = key;
-  }
-
-  getCurrentScene(): GameScene | null {
-    if (!this.currentSceneKey) return null;
-    return this.scenes.get(this.currentSceneKey)!;
   }
 }
