@@ -148,7 +148,7 @@ const enableCameraControls = false;
   // Add an interactive physics cube
   const mainCube = physics.addBox(
     new THREE.Vector3(1, 1, 1), // Cube size
-    new THREE.Vector3(0, 5, 0), // Starting position
+    new THREE.Vector3(0, -4, 0), // Starting position
     1, // Mass
     0x00ff00, // Color
   );
@@ -209,7 +209,6 @@ const enableCameraControls = false;
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
   let dragging = false;
-  // inventoryDiv will be created later — declare it now so handlers can safely check it.
   let inventoryDiv: HTMLElement | null = null;
   let inInventory = false;
 
@@ -243,7 +242,7 @@ const enableCameraControls = false;
   // Listen for mouse up
   renderer.domElement.addEventListener("mouseup", (event: MouseEvent) => {
     if (dragging) {
-      // inventoryDiv can be null (not created) — treat as not over inventory
+      // inventoryDiv can be null
       const invRect = inventoryDiv
         ? inventoryDiv.getBoundingClientRect()
         : null;
@@ -331,10 +330,10 @@ const enableCameraControls = false;
     }
 
     // Puzzle success
-    // Puzzle success — only consider targets that are part of the active scene
     if (
       currentScene &&
       currentScene.getMeshes().includes(winGround) &&
+      currentScene.getMeshes().includes(mainCube) &&
       isTouching(mainCube, winGround) &&
       !successShown
     ) {
@@ -342,10 +341,11 @@ const enableCameraControls = false;
       successShown = true;
     }
 
-    // Puzzle fail — only consider targets that are part of the active scene
+    // Puzzle fail
     if (
       currentScene &&
       currentScene.getMeshes().includes(failGround) &&
+      currentScene.getMeshes().includes(mainCube) &&
       isTouching(mainCube, failGround)
     ) {
       showText("fail", "That's not right... TRY AGAIN", "red");
