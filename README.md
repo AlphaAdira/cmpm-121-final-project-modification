@@ -58,3 +58,27 @@ When we look back at how we got the F1 requirements done, our plan didn't really
 While our roles didn't change or what task each role was supposed to fullfill, we did change how we're tackling our assignments going forward. Since Tools and Engine Lead both work hand-to-hand, we decided that going forward, the Design Lead won't work on anything until the Engine and Tools Lead got everything done. Which allowed us to make this simple puzzle on time without any issues.
 
 #### ---End of Entry------------------------------------------------------------------
+
+# Devlog Entry – 12/1/2025
+
+## How we satisfied the software requirements
+
+1. We stayed with the same setup from F1. Our game still uses the browser as the platform with TypeScript. We use three.js for all the 3D rendering and our physics setup still comes from the same physics system we used before. The browser does not give us these features by default, so we continue to bring them in ourselves and connect them to the game logic the same way we did in F1.
+
+2. We added a simple scene system that lets the player move between different rooms. We treat each scene like its own space with its own objects and layout. When the player clicks on the spot that leads to another room, the game switches scenes and loads the next set of objects. This makes it feel more like a point and click adventure since the player is traveling through different locations instead of staying in one spot.
+
+3. The game lets the player select objects directly in each scene. When the player clicks on an object, the game checks what was clicked and responds based on that item. This can be examining something, picking it up, or dragging it around. We used raycasting on the 3D scene so the click targets the right item. From the player’s point of view it feels like a normal point and click interaction where you tap something and the game reacts the way you expect.
+
+4. We added an inventory system so the player can pick up items and use them later. When the player interacts with certain objects, the item gets put into the inventory. Other scenes check what the player is holding to decide what actions are possible. This made the game feel more connected, since the object you picked up in one room can be brought to the second room.
+
+5. The game has a physics based puzzle that the player must solve in the second room. The puzzle depends on how the player interacts with the physics objects in the scene. Completing the puzzle will immediately show the results.
+
+6. The puzzle can be won or lost based on the player’s own actions and reasoning. The outcome depends on where they place objects and how they choose to use the object they have. If the player understands the layout and makes the right choice, they can beat the puzzle. But also making the wrong choice will make you fail the puzzle.
+
+7. The game can reach an ending after completing our simple puzzle. Since there are only two rooms, it's straightforward on how our game will end. Either they reached the ending where they've completed the puzzle successfully. Or the ending where they failed the puzzle.
+
+## Reflection
+
+Working on the F2 requirements changed our plan a lot compared to F1. In F1 we only had to make one small puzzle in one room, so things were pretty simple. For F2 we had to think about scenes, objects, inventory, and how everything connects, which made the game feel bigger. We had to rethink some of our ideas so the physics puzzle actually worked when implementing the new features. Our roles also stayed the same like in F1. Overall, F2 showed us how much more planning we need when the game gets more complex even if it's such simple changes overall.
+
+#### ---End of Entry------------------------------------------------------------------
