@@ -13,7 +13,7 @@ const enableCameraControls = false;
   // Ensure DOM is ready before touching document.body / DOM elements.
   if (document.readyState === "loading") {
     await new Promise<void>((resolve) =>
-      document.addEventListener("DOMContentLoaded", () => resolve())
+      document.addEventListener("DOMContentLoaded", () => resolve()),
     );
   }
 
@@ -25,7 +25,6 @@ const enableCameraControls = false;
   const sceneManager = new SceneManager();
 
   let lastTime = globalThis.performance?.now() ?? 0;
-
 
   // ---------- Scene Navigation Buttons ----------
   const btnLeft = document.createElement("div");
@@ -63,7 +62,6 @@ const enableCameraControls = false;
   btnRight.style.borderRadius = "8px";
   btnRight.style.pointerEvents = "auto";
   document.body.appendChild(btnRight);
-
 
   // ---------- Camera Controls ----------
   // Create camera
@@ -114,14 +112,14 @@ const enableCameraControls = false;
   const ground1 = physics.addBox(
     new THREE.Vector3(20, 1, 20), // Ground size
     new THREE.Vector3(0, -5, 0), // Starting position
-    0,  // Mass (0 = static object)
+    0, // Mass (0 = static object)
     0x4444ff, // Blue
   );
   scene1.addMesh(ground1);
 
   const ground2 = physics.addBox(
     new THREE.Vector3(20, 1, 20), // Ground size
-    new THREE.Vector3(0, -5, 0),  // Starting position
+    new THREE.Vector3(0, -5, 0), // Starting position
     0, // Mass (0 = static object)
     0x777777, // Gray
   );
@@ -180,7 +178,6 @@ const enableCameraControls = false;
     }
   }
 
-
   // ---------- Scene Navigation Logic ----------
   // Hook up scene switching
   btnLeft.addEventListener("click", () => {
@@ -202,7 +199,6 @@ const enableCameraControls = false;
     btnLeft.style.display = index > 0 ? "block" : "none";
     btnRight.style.display = index < count - 1 ? "block" : "none";
   }
-
 
   // ---------- Drag & Drop Mechanics ----------
   // Variables
@@ -249,7 +245,8 @@ const enableCameraControls = false;
       const mouseX = event.clientX;
       const mouseY = event.clientY;
 
-      const overInventory = invRect !== null &&
+      const overInventory =
+        invRect !== null &&
         mouseX >= invRect.left &&
         mouseX <= invRect.right &&
         mouseY >= invRect.top &&
