@@ -13,7 +13,7 @@ const enableCameraControls = false;
   // Ensure DOM is ready before touching document.body / DOM elements.
   if (document.readyState === "loading") {
     await new Promise<void>((resolve) =>
-      document.addEventListener("DOMContentLoaded", () => resolve()),
+      document.addEventListener("DOMContentLoaded", () => resolve())
     );
   }
 
@@ -245,8 +245,7 @@ const enableCameraControls = false;
       const mouseX = event.clientX;
       const mouseY = event.clientY;
 
-      const overInventory =
-        invRect !== null &&
+      const overInventory = invRect !== null &&
         mouseX >= invRect.left &&
         mouseX <= invRect.right &&
         mouseY >= invRect.top &&

@@ -85,11 +85,18 @@ export class PhysicsEngine {
 
     const transform = new Ammo.btTransform();
     transform.setIdentity();
-    transform.setOrigin(new Ammo.btVector3(mesh.position.x, mesh.position.y, mesh.position.z));
+    transform.setOrigin(
+      new Ammo.btVector3(mesh.position.x, mesh.position.y, mesh.position.z),
+    );
 
     const quaternion = mesh.quaternion;
     transform.setRotation(
-      new Ammo.btQuaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w),
+      new Ammo.btQuaternion(
+        quaternion.x,
+        quaternion.y,
+        quaternion.z,
+        quaternion.w,
+      ),
     );
 
     const motionState = new Ammo.btDefaultMotionState(transform);
@@ -161,7 +168,12 @@ export class PhysicsEngine {
         const rotation = tmpTransform.getRotation();
 
         mesh.position.set(origin.x(), origin.y(), origin.z());
-        mesh.quaternion.set(rotation.x(), rotation.y(), rotation.z(), rotation.w());
+        mesh.quaternion.set(
+          rotation.x(),
+          rotation.y(),
+          rotation.z(),
+          rotation.w(),
+        );
       }
     }
   }
