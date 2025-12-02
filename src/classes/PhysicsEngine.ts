@@ -107,6 +107,8 @@ export class PhysicsEngine {
 
     // Store reference
     mesh.userData.physicsBody = body;
+    // Store mass so callers can re-add the mesh later if needed
+    mesh.userData.mass = mass;
 
     // Add to world
     this.physicsWorld.addRigidBody(body);

@@ -46,4 +46,9 @@ export class SceneManager {
   getSceneCount(): number {
     return this.order.length;
   }
+
+  // Return all scenes in order
+  getAllScenes(): GameScene[] {
+    return this.order.map((k) => this.scenes.get(k)!).filter(Boolean);
+  }
 }

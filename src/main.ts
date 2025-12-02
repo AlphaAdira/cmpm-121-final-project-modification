@@ -37,8 +37,13 @@ const enableCameraControls = false;
   btnLeft.style.fontSize = "48px";
   btnLeft.style.cursor = "pointer";
   btnLeft.style.userSelect = "none";
-  btnLeft.style.zIndex = "10";
+  btnLeft.style.zIndex = "1000";
   btnLeft.style.display = "none"; // hidden by default
+  btnLeft.style.color = "white";
+  btnLeft.style.background = "rgba(0,0,0,0.45)";
+  btnLeft.style.padding = "6px 10px";
+  btnLeft.style.borderRadius = "8px";
+  btnLeft.style.pointerEvents = "auto";
   document.body.appendChild(btnLeft);
 
   const btnRight = document.createElement("div");
@@ -50,8 +55,13 @@ const enableCameraControls = false;
   btnRight.style.fontSize = "48px";
   btnRight.style.cursor = "pointer";
   btnRight.style.userSelect = "none";
-  btnRight.style.zIndex = "10";
+  btnRight.style.zIndex = "1000";
   btnRight.style.display = "none"; // hidden by default
+  btnRight.style.color = "white";
+  btnRight.style.background = "rgba(0,0,0,0.45)";
+  btnRight.style.padding = "6px 10px";
+  btnRight.style.borderRadius = "8px";
+  btnRight.style.pointerEvents = "auto";
   document.body.appendChild(btnRight);
 
 
@@ -93,27 +103,27 @@ const enableCameraControls = false;
   const scene2 = new GameScene(physics);
 
   // Add lighting
-  const light1 = new THREE.DirectionalLight(0xffffff, 1);
-  light1.position.set(1, 1, 1);
+  const light1 = new THREE.AmbientLight(0xffffff, 1);
   scene1.addLight(light1);
 
-  const light2 = new THREE.AmbientLight(0xffffff, 1);
+  const light2 = new THREE.DirectionalLight(0xffffff, 1);
+  light2.position.set(1, 1, 1);
   scene2.addLight(light2);
 
   // Add a static ground
   const ground1 = physics.addBox(
     new THREE.Vector3(20, 1, 20), // Ground size
     new THREE.Vector3(0, -5, 0), // Starting position
-    0, // Mass (0 = static object)
-    0x777777, // Gray
+    0,  // Mass (0 = static object)
+    0x4444ff, // Blue
   );
   scene1.addMesh(ground1);
 
   const ground2 = physics.addBox(
-    new THREE.Vector3(20, 1, 20),
-    new THREE.Vector3(0, -5, 0),
-    0,
-    0x4444ff
+    new THREE.Vector3(20, 1, 20), // Ground size
+    new THREE.Vector3(0, -5, 0),  // Starting position
+    0, // Mass (0 = static object)
+    0x777777, // Gray
   );
   scene2.addMesh(ground2);
 
@@ -124,7 +134,7 @@ const enableCameraControls = false;
     0, // Mass (0 = static object)
     0x22aa22, // Green
   );
-  scene1.addMesh(winGround);
+  scene2.addMesh(winGround);
 
   // Add a fail ground
   const failGround = physics.addBox(
@@ -133,7 +143,7 @@ const enableCameraControls = false;
     0, // Mass (0 = static object)
     0xaa2222, // Red
   );
-  scene1.addMesh(failGround);
+  scene2.addMesh(failGround);
 
   // Add an interactive physics cube
   const mainCube = physics.addBox(
@@ -148,6 +158,27 @@ const enableCameraControls = false;
   // Add scenes to scene manager
   sceneManager.addScene("room1", scene1);
   sceneManager.addScene("room2", scene2);
+  // Ensure physics bodies are active only for the current scene
+  function updateScenePhysics() {
+    const active = sceneManager.getCurrentScene();
+    const all = sceneManager.getAllScenes();
+    for (const scene of all) {
+      const meshes = scene.getMeshes();
+      for (const mesh of meshes) {
+        const hasBody = !!mesh.userData.physicsBody;
+        if (scene === active) {
+          if (!hasBody) {
+            const mass = mesh.userData.mass ?? 0;
+            physics.addMesh(mesh, mass);
+          }
+        } else {
+          if (hasBody) {
+            physics.removeMesh(mesh);
+          }
+        }
+      }
+    }
+  }
 
 
   // ---------- Scene Navigation Logic ----------
@@ -155,11 +186,13 @@ const enableCameraControls = false;
   btnLeft.addEventListener("click", () => {
     sceneManager.goPrev();
     updateSceneButtons();
+    updateScenePhysics();
   });
 
   btnRight.addEventListener("click", () => {
     sceneManager.goNext();
     updateSceneButtons();
+    updateScenePhysics();
   });
 
   function updateSceneButtons() {
@@ -292,21 +325,29 @@ const enableCameraControls = false;
 
     const currentScene = sceneManager.getCurrentScene();
     if (currentScene) {
-      updateSceneButtons();
-
       const delta = deltaTime;
       currentScene.physics.update(delta);
       renderer.render(currentScene.scene, camera);
     }
 
     // Puzzle success
-    if (isTouching(mainCube, winGround) && !successShown) {
+    // Puzzle success — only consider targets that are part of the active scene
+    if (
+      currentScene &&
+      currentScene.getMeshes().includes(winGround) &&
+      isTouching(mainCube, winGround) &&
+      !successShown
+    ) {
       showText("success", "SUCCESS! You landed it! 🎉", "lime");
       successShown = true;
     }
 
-    // Puzzle fail
-    if (isTouching(mainCube, failGround)) {
+    // Puzzle fail — only consider targets that are part of the active scene
+    if (
+      currentScene &&
+      currentScene.getMeshes().includes(failGround) &&
+      isTouching(mainCube, failGround)
+    ) {
       showText("fail", "That's not right... TRY AGAIN", "red");
       successShown = false;
     }
@@ -315,6 +356,7 @@ const enableCameraControls = false;
   // Set initial scene
   sceneManager.switchScene("room1");
   updateSceneButtons();
+  updateScenePhysics();
 
   // Initial animate call
   animate();
@@ -355,7 +397,7 @@ const enableCameraControls = false;
     document.body.appendChild(el);
   }
 
-  // ------- Inventory ----------
+  // ------- Inventory System ----------
   const InvBox = document.createElement("div");
   InvBox.id = "inventory";
   InvBox.style.position = "absolute";
@@ -401,7 +443,28 @@ const enableCameraControls = false;
     mainCube.position
       .copy(camera.position)
       .add(camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(10));
-    physics.addMesh(mainCube, 1); // Re-add to physics
+    // Ensure the cube exists in the current active scene so it renders there
+    const currentScene = sceneManager.getCurrentScene();
+    if (currentScene) {
+      // Remove from known scenes first to avoid duplicates (safe no-op if not present)
+      try {
+        scene1.removeMesh(mainCube);
+      } catch (_e) {
+        // Ignore
+      }
+      try {
+        scene2.removeMesh(mainCube);
+      } catch (_e) {
+        // Ignore
+      }
+
+      // Add to current scene which will also register it with the physics engine
+      currentScene.addMesh(mainCube, 1);
+    } else {
+      // Fallback: re-add to physics only
+      physics.addMesh(mainCube, 1);
+    }
+
     physicsActive = true;
   });
 })();

@@ -93,4 +93,9 @@ export class GameScene {
     this.objects = [];
     this.lights = [];
   }
+
+  // Expose meshes so external code can operate on per-scene objects
+  getMeshes(): THREE.Mesh[] {
+    return this.objects;
+  }
 }
