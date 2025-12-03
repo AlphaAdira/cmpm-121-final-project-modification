@@ -76,6 +76,7 @@ const enableCameraControls = false;
   // Create renderer
   const renderer = new THREE.WebGLRenderer();
   renderer.setSize(globalThis.innerWidth, globalThis.innerHeight);
+  renderer.setClearColor(0xffffff); // how to set background color
   document.body.appendChild(renderer.domElement);
 
   // Add camera orbit controls
@@ -462,5 +463,55 @@ const enableCameraControls = false;
     }
 
     physicsActive = true;
+  });
+
+  // ------- UI System ----------
+  const ButtonsBox = document.createElement("div");
+  ButtonsBox.id = "inventory";
+  ButtonsBox.style.position = "absolute";
+  ButtonsBox.style.top = "20px";
+  ButtonsBox.style.right = "20px";
+  ButtonsBox.style.width = "200px";
+  ButtonsBox.style.height = "150px";
+  ButtonsBox.style.zIndex = "1";
+  ButtonsBox.style.pointerEvents = "none";
+  document.body.appendChild(ButtonsBox);
+  // language button
+  const langButton = document.createElement("button");
+  langButton.textContent = "Change Language";
+  langButton.style.margin = "10px";
+  langButton.style.pointerEvents = "auto";
+  ButtonsBox.appendChild(langButton);
+  // light/dark mode button
+  const modeButton = document.createElement("button");
+  modeButton.textContent = "Toggle Light/Dark Mode";
+  modeButton.style.margin = "10px";
+  modeButton.style.pointerEvents = "auto";
+  ButtonsBox.appendChild(modeButton);
+  // save button
+  const saveButton = document.createElement("button");
+  saveButton.textContent = "Save Game";
+  saveButton.style.margin = "10px";
+  saveButton.style.pointerEvents = "auto";
+  ButtonsBox.appendChild(saveButton);
+
+  // language button event
+  langButton.addEventListener("click", () => {
+    alert("Language change feature is not implemented yet.");
+  });
+
+  // mode button event
+  modeButton.addEventListener("click", () => {
+    const current = renderer.getClearColor(new THREE.Color());
+    if (current.getHex() === 0xffffff) {
+      renderer.setClearColor(0x000000);
+    } else {
+      renderer.setClearColor(0xffffff);
+    }
+  });
+
+  // save button event
+  saveButton.addEventListener("click", () => {
+    alert("Save game feature is not implemented yet.");
   });
 })();
