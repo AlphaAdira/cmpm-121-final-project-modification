@@ -402,7 +402,7 @@ const enableCameraControls = false;
   InvBox.style.left = "20px";
   InvBox.style.width = "150px";
   InvBox.style.height = "150px";
-  InvBox.style.background = "#E2EAF4";
+  InvBox.style.background = "#b8bbbd";
   InvBox.style.borderRadius = "30px";
   InvBox.style.color = "black";
   InvBox.style.zIndex = "1";
@@ -505,8 +505,10 @@ const enableCameraControls = false;
     const current = renderer.getClearColor(new THREE.Color());
     if (current.getHex() === 0xffffff) {
       renderer.setClearColor(0x000000);
+      InvBox.style.background = "#6e7277";
     } else {
       renderer.setClearColor(0xffffff);
+      InvBox.style.background = "#b8bbbd";
     }
   });
 
