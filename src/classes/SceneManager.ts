@@ -51,4 +51,13 @@ export class SceneManager {
   getAllScenes(): GameScene[] {
     return this.order.map((k) => this.scenes.get(k)!).filter(Boolean);
   }
+
+  // Return entries [key, scene] in order
+  getAllEntries(): Array<{ key: string; scene: GameScene }> {
+    return this.order.map((k) => ({ key: k, scene: this.scenes.get(k)! }));
+  }
+
+  getCurrentSceneKey(): string | null {
+    return this.order[this.currentIndex] ?? null;
+  }
 }

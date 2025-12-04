@@ -3,6 +3,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { PhysicsEngine } from "./classes/PhysicsEngine.ts";
 import { GameScene } from "./classes/GameScene.ts";
 import { SceneManager } from "./classes/SceneManager.ts";
+import { SaveManager } from "./classes/SaveManager.ts";
 
 // ---------- Settings ----------
 const enableCameraControls = false;
@@ -221,6 +222,7 @@ const enableCameraControls = false;
 
     if (intersects.length > 0) {
       dragging = true;
+      saveManager.setDragging(true);
       inInventory = false;
       physics.removeMesh(mainCube);
       physicsActive = false;
@@ -323,6 +325,7 @@ const enableCameraControls = false;
       setOutline(mainCube, false);
 
       dragging = false;
+      saveManager.setDragging(false);
 
       // Do a final raycast using the updated mouse to set the cursor/outline correctly
       try {
@@ -401,11 +404,6 @@ const enableCameraControls = false;
     const deltaTime = (time - lastTime) * 0.001; // Convert ms to seconds
     lastTime = time;
 
-    if (physics.isReady()) {
-      // Use the public update() method rather than reaching into the private internals
-      physics.update(deltaTime);
-    }
-
     updateHoverState();
 
     // Drag cube
@@ -474,10 +472,39 @@ const enableCameraControls = false;
     }
   }
 
-  // Set initial scene
-  sceneManager.switchScene("room1");
+  // Create inventory DOM early so SaveManager can be instantiated before load
+  const InvBox = document.createElement("div");
+  InvBox.id = "inventory";
+  InvBox.className = "inventory";
+  document.body.appendChild(InvBox);
+  inventoryDiv = InvBox;
+
+  // Create SaveManager to handle persistence and autosave
+  const saveManager = new SaveManager({
+    sceneManager,
+    physics,
+    mainCube,
+    invBox: InvBox,
+    renderer,
+    grounds: { ground1, ground2, winGround, failGround },
+  });
+
+  // Try to load saved game via SaveManager; if none, fall back to initial scene
+  const loadedSave = saveManager.load();
+  if (!loadedSave) {
+    sceneManager.switchScene("room1");
+  }
+  // Sync inInventory state with cube visibility after load
+  inInventory = !mainCube.visible;
   updateSceneButtons();
   updateScenePhysics();
+
+  // Start auto-save via SaveManager
+  try {
+    saveManager.startAutoSave(5000);
+  } catch (_e) {
+    // If setInterval isn't available for any reason, skip auto-save
+  }
 
   // Initial animate call
   animate();
@@ -511,12 +538,6 @@ const enableCameraControls = false;
   // #endregion
 
   // #region - Inventory System ----------
-  const InvBox = document.createElement("div");
-  InvBox.id = "inventory";
-  InvBox.className = "inventory";
-  document.body.appendChild(InvBox);
-  inventoryDiv = InvBox;
-
   function createInvItem(color: string) {
     const existing = document.getElementById("invItem");
     if (existing) {
@@ -603,15 +624,25 @@ const enableCameraControls = false;
     }
   });
 
-  // Save button
+  // Reset button
+  const resetButton = document.createElement("button");
+  resetButton.textContent = "Reset Game";
+  ButtonsBox.appendChild(resetButton);
+
+  // Reset button event
+  resetButton.addEventListener("click", () => saveManager.reset());
+
+  // Save button (for manual testing)
   const saveButton = document.createElement("button");
   saveButton.textContent = "Save Game";
   ButtonsBox.appendChild(saveButton);
 
-  // Save button event
   saveButton.addEventListener("click", () => {
-    alert("Save game feature is not implemented yet.");
+    saveManager.save();
+    console.log("[Manual] Save triggered");
   });
 
   // #endregion
+
+  // Save/Load/Reset handled by SaveManager
 })();

@@ -20,7 +20,7 @@ export class PhysicsEngine {
     // @ts-ignore - global Ammo
     this.Ammo = await Ammo();
 
-    const gravity = new this.Ammo.btVector3(0, -9.81, 0);
+    const gravity = new this.Ammo.btVector3(0, -25, 0);
 
     const config = new this.Ammo.btDefaultCollisionConfiguration();
     const dispatcher = new this.Ammo.btCollisionDispatcher(config);
@@ -138,6 +138,35 @@ export class PhysicsEngine {
     this.rigidBodies = this.rigidBodies.filter((m) => m !== mesh);
 
     mesh.userData.physicsBody = null;
+  }
+
+  // ------------------------------------------------------
+  // Update physics body transform from mesh
+  // ------------------------------------------------------
+  setBodyTransform(mesh: THREE.Mesh, pos: THREE.Vector3, rot: THREE.Euler) {
+    const body = mesh.userData.physicsBody;
+    if (!body) return;
+
+    const { Ammo } = this;
+
+    const transform = new Ammo.btTransform();
+    transform.setIdentity();
+
+    // Position
+    transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
+
+    // Rotation
+    const quat = new THREE.Quaternion().setFromEuler(rot);
+    transform.setRotation(
+      new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w)
+    );
+
+    body.setWorldTransform(transform);
+    body.getMotionState().setWorldTransform(transform);
+
+    // Sync mesh too
+    mesh.position.copy(pos);
+    mesh.quaternion.copy(quat);
   }
 
   // ------------------------------------------------------
