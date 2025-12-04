@@ -209,3 +209,43 @@ body:not(.dark) .tutorial-text {
   color: black;
   text-shadow: none;
 }
+
+#language-menu {
+    position: absolute;
+    display: none;
+
+    flex-direction: row;
+    gap: 8px;
+
+    background: rgba(0, 0, 0, 0.6);
+    padding: 8px 10px;
+    border-radius: 10px;
+    z-index: 5000;
+
+    backdrop-filter: blur(6px);
+    border: 2px solid rgba(255, 255, 255, 0.25);
+}
+
+/* Same UI-style button look */
+.language-flag {
+    width: 40px;
+    height: 40px;
+    padding: 4px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    object-fit: cover;
+
+    transition:
+      background-color 0.2s ease,
+      transform 0.15s ease;
+}
+
+.language-flag:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.language-flag:active {
+    background: rgba(255, 255, 255, 0.35);
+    transform: scale(0.95);
+}

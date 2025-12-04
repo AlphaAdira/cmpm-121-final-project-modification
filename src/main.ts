@@ -36,6 +36,10 @@ const enableCameraControls = false;
     "Pick up the cube. You can also change scenes with the arrow buttons.";
   document.body.appendChild(tutorialText);
 
+  // Create global language setting
+  let language = (globalThis as any).language ?? "english";
+  (globalThis as any).language = language;
+
   // #region - Scene Navigation Buttons ----------
   const btnLeft = document.createElement("div");
   btnLeft.innerHTML = "⟵";
@@ -633,8 +637,45 @@ const enableCameraControls = false;
   langImg.title = "Change Language";
   langImg.className = "ui-btn-img";
   ButtonsBox.appendChild(langImg);
+
+  const langMenu = document.createElement("div");
+  langMenu.id = "language-menu";
+  document.body.appendChild(langMenu);
+
+  function createLangButton(src: string, code: string, title: string) {
+    const img = document.createElement("img");
+    img.src = src;
+    img.title = title;
+    img.classList.add("language-flag");
+
+    img.addEventListener("click", () => {
+      language = code;
+      (globalThis as any).language = code;
+      updateTutorial();
+    });
+
+    return img;
+  }
+
+  langMenu.appendChild(createLangButton("src/assets/Flag_USA.png", "english", "English"));
+  langMenu.appendChild(createLangButton("src/assets/Flag_Israel.png", "hebrew", "Hebrew"));
+  langMenu.appendChild(createLangButton("src/assets/Flag_Japan.png", "japanese", "Japanese"));
+
+  // Toggle / show menu next to the language button
+  let langMenuVisible = false;
+
   langImg.addEventListener("click", () => {
-    alert("Language change feature is not implemented yet.");
+    const rect = langImg.getBoundingClientRect();
+    if (langMenuVisible) {
+      langMenu.style.display = "none";
+      langMenuVisible = false;
+      return;
+    } else {
+      langMenu.style.display = "flex";
+      langMenuVisible = true;
+    }
+    langMenu.style.top = rect.top + "px";
+    langMenu.style.left = rect.left - langMenu.offsetWidth - 10 + "px";
   });
 
   // Light/dark mode image button
@@ -729,17 +770,45 @@ const enableCameraControls = false;
 
     switch (tutorialStep) {
       case 0:
-        setTutorialText(
-          "Pick up the cube. You can also change scenes with the arrow buttons.",
-        );
+        switch (language) {
+          case "english":
+            setTutorialText("Pick up the cube. You can also change scenes with the arrow buttons.");
+            break;
+          case "hebrew":
+            setTutorialText("תרים את הקובייה. אתה גם יכול לשנות סצנות עם כפתורי החצים.");
+            break;
+          case "japanese":
+            setTutorialText("キューブを持ち上げてください。矢印ボタンでレベルを変えることもできます。");
+            break;
+        }
         break;
 
       case 1:
-        setTutorialText("Drop the cube into the inventory box.");
+        switch (language) {
+          case "english":
+            setTutorialText("Drop the cube into the inventory box.");
+            break;
+          case "hebrew":
+            setTutorialText("זרוק את הקובייה לתיבת המלאי.");
+            break;
+          case "japanese":
+            setTutorialText("キューブをインベントリに入れてください。");
+            break;
+        }
         break;
 
       case 2:
-        setTutorialText("Click the cube in the inventory to take it out.");
+        switch (language) {
+          case "english":
+            setTutorialText("Click the cube in the inventory to take it out.");
+            break;
+          case "hebrew":
+            setTutorialText("לחץ על הקובייה במלאי כדי להוציא אותה.");
+            break;
+          case "japanese":
+            setTutorialText("インベントリのキューブを押して、取り出します。");
+            break;
+        }
         break;
 
       case 3:
