@@ -28,7 +28,7 @@ const enableCameraControls = false;
   // Ensure DOM is ready before touching document.body / DOM elements.
   if (document.readyState === "loading") {
     await new Promise<void>((resolve) =>
-      document.addEventListener("DOMContentLoaded", () => resolve()),
+      document.addEventListener("DOMContentLoaded", () => resolve())
     );
   }
 
@@ -320,8 +320,7 @@ const enableCameraControls = false;
           const rect = inventoryDiv.getBoundingClientRect();
           const px = activeTouch.clientX;
           const py = activeTouch.clientY;
-          const inside =
-            px >= rect.left &&
+          const inside = px >= rect.left &&
             px <= rect.right &&
             py >= rect.top &&
             py <= rect.bottom;
@@ -364,8 +363,7 @@ const enableCameraControls = false;
       const touchX = endTouch.clientX;
       const touchY = endTouch.clientY;
 
-      const overInventory =
-        invRect !== null &&
+      const overInventory = invRect !== null &&
         touchX >= invRect.left &&
         touchX <= invRect.right &&
         touchY >= invRect.top &&
@@ -454,8 +452,7 @@ const enableCameraControls = false;
           const rect = inventoryDiv.getBoundingClientRect();
           const px = event.clientX;
           const py = event.clientY;
-          const inside =
-            px >= rect.left &&
+          const inside = px >= rect.left &&
             px <= rect.right &&
             py >= rect.top &&
             py <= rect.bottom;
@@ -495,8 +492,7 @@ const enableCameraControls = false;
       const mouseX = event.clientX;
       const mouseY = event.clientY;
 
-      const overInventory =
-        invRect !== null &&
+      const overInventory = invRect !== null &&
         mouseX >= invRect.left &&
         mouseX <= invRect.right &&
         mouseY >= invRect.top &&
@@ -973,6 +969,7 @@ const enableCameraControls = false;
     saveManager.reset();
     updateSceneButtons();
     updateModeIcon();
+    puzzleResult = "none";
 
     tutorialStep = 0;
     updateTutorial();
