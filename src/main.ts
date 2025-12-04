@@ -36,6 +36,16 @@ const enableCameraControls = false;
     "Pick up the cube. You can also change scenes with the arrow buttons.";
   document.body.appendChild(tutorialText);
 
+  // Set global tutorial step and language
+  let tutorialStep = (globalThis as any).tutorialStep ?? 0;
+  (globalThis as any).tutorialStep = tutorialStep;
+
+  let language = (globalThis as any).language ?? "english";
+  (globalThis as any).language = language;
+
+  // Create level result
+  let puzzleResult = "none";
+
   // #region - Scene Navigation Buttons ----------
   const btnLeft = document.createElement("div");
   btnLeft.innerHTML = "⟵";
@@ -480,7 +490,8 @@ const enableCameraControls = false;
       isTouching(mainCube, winGround) &&
       !successShown
     ) {
-      showText("success", "SUCCESS! You landed it! 🎉", "lime");
+      puzzleResult = "success";
+      setPuzzleText(puzzleResult);
       successShown = true;
     }
 
@@ -491,8 +502,45 @@ const enableCameraControls = false;
       currentScene.getMeshes().includes(mainCube) &&
       isTouching(mainCube, failGround)
     ) {
-      showText("fail", "That's not right... TRY AGAIN", "red");
+      puzzleResult = "fail";
+      setPuzzleText(puzzleResult);
       successShown = false;
+    }
+  }
+
+  // Puzzle text function
+  function setPuzzleText(result: string) {
+    language = (globalThis as any).language ?? "english";
+    (globalThis as any).language = language;
+
+    if (result === "success") {
+      switch (language) {
+        case "english":
+          showText("success", "SUCCESS! You landed it! 🎉", "lime");
+          break;
+        case "hebrew":
+          showText("success", "הצלחה! נחתת את זה! 🎉", "lime");
+          break;
+        case "japanese":
+          showText("success", "成功！着地しました！🎉", "lime");
+          break;
+      }
+    } else if (result === "fail") {
+      switch (language) {
+        case "english":
+          showText("fail", "That's not right... TRY AGAIN", "red");
+          break;
+        case "hebrew":
+          showText("fail", "זה לא נכון... תנסה שוב", "red");
+          break;
+        case "japanese":
+          showText(
+            "fail",
+            "それは正しくありません...もう一度やり直してください",
+            "red",
+          );
+          break;
+      }
     }
   }
 
@@ -559,6 +607,21 @@ const enableCameraControls = false;
     el.textContent = message;
     el.className = `message ${elementID}`;
     document.body.appendChild(el);
+
+    language = (globalThis as any).language ?? "english";
+    (globalThis as any).language = language;
+
+    switch (language) {
+      case "english":
+        el.style.direction = "ltr";
+        break;
+      case "hebrew":
+        el.style.direction = "rtl";
+        break;
+      case "japanese":
+        el.style.direction = "ltr";
+        break;
+    }
   }
   // #endregion
 
@@ -638,9 +701,6 @@ const enableCameraControls = false;
   langMenu.id = "language-menu";
   document.body.appendChild(langMenu);
 
-  let language = (globalThis as any).language ?? "english";
-  (globalThis as any).language = language;
-
   function createLangButton(src: string, code: string, title: string) {
     const img = document.createElement("img");
     img.src = src;
@@ -652,15 +712,22 @@ const enableCameraControls = false;
       (globalThis as any).language = code;
 
       saveManager.setLanguage(code);
+      setPuzzleText(puzzleResult);
       updateTutorial();
     });
 
     return img;
   }
 
-  langMenu.appendChild(createLangButton("src/assets/Flag_USA.png", "english", "English"));
-  langMenu.appendChild(createLangButton("src/assets/Flag_Israel.png", "hebrew", "Hebrew"));
-  langMenu.appendChild(createLangButton("src/assets/Flag_Japan.png", "japanese", "Japanese"));
+  langMenu.appendChild(
+    createLangButton("src/assets/Flag_USA.png", "english", "English"),
+  );
+  langMenu.appendChild(
+    createLangButton("src/assets/Flag_Israel.png", "hebrew", "Hebrew"),
+  );
+  langMenu.appendChild(
+    createLangButton("src/assets/Flag_Japan.png", "japanese", "Japanese"),
+  );
 
   // Toggle / show menu next to the language button
   let langMenuVisible = false;
@@ -763,8 +830,11 @@ const enableCameraControls = false;
     tutorialText.textContent = text;
   }
 
-  let tutorialStep = (globalThis as any).tutorialStep ?? 0;
+  tutorialStep = (globalThis as any).tutorialStep ?? 0;
   (globalThis as any).tutorialStep = tutorialStep;
+
+  language = (globalThis as any).language ?? "english";
+  (globalThis as any).language = language;
 
   function updateTutorial() {
     saveManager.setTutorialStep(tutorialStep);
@@ -772,7 +842,7 @@ const enableCameraControls = false;
     switch (language) {
       case "english":
         tutorialText.style.fontFamily = "Arial, sans-serif";
-        tutorialText.style.fontSize = "28px";
+        tutorialText.style.fontSize = "26px";
         tutorialText.style.direction = "ltr";
         break;
       case "hebrew":
@@ -782,7 +852,7 @@ const enableCameraControls = false;
         break;
       case "japanese":
         tutorialText.style.fontFamily = "'Noto Sans JP', sans-serif";
-        tutorialText.style.fontSize = "26px";
+        tutorialText.style.fontSize = "24px";
         tutorialText.style.direction = "ltr";
         break;
     }
@@ -791,13 +861,19 @@ const enableCameraControls = false;
       case 0:
         switch (language) {
           case "english":
-            setTutorialText("Pick up the cube. You can also change scenes with the arrow buttons.");
+            setTutorialText(
+              "Pick up the cube. You can also change scenes with the arrow buttons.",
+            );
             break;
           case "hebrew":
-            setTutorialText("תרים את הקובייה. אתה גם יכול לשנות סצנות עם כפתורי החצים.");
+            setTutorialText(
+              "תרים את הקובייה. אתה גם יכול לשנות סצנות עם כפתורי החצים.",
+            );
             break;
           case "japanese":
-            setTutorialText("キューブを持ち上げてください。矢印ボタンでレベルを変えることもできます。");
+            setTutorialText(
+              "キューブを持ち上げてください。矢印ボタンでレベルを変えることもできます。",
+            );
             break;
         }
         break;
