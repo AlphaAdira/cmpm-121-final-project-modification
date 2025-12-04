@@ -131,7 +131,10 @@ const enableCameraControls = false;
   );
   scene1.addMesh(mainCube);
   // Create a silhouette outline mesh on cube
-  const outlineMat = new THREE.MeshBasicMaterial({ color: 0xffff66, side: THREE.BackSide });
+  const outlineMat = new THREE.MeshBasicMaterial({
+    color: 0xffff66,
+    side: THREE.BackSide,
+  });
   const outlineGeo = (mainCube.geometry as THREE.BufferGeometry).clone();
   const outlineMesh = new THREE.Mesh(outlineGeo, outlineMat);
   outlineMesh.scale.set(1.08, 1.08, 1.08);
@@ -246,7 +249,8 @@ const enableCameraControls = false;
           const rect = inventoryDiv.getBoundingClientRect();
           const px = event.clientX;
           const py = event.clientY;
-          const inside = px >= rect.left && px <= rect.right && py >= rect.top && py <= rect.bottom;
+          const inside = px >= rect.left && px <= rect.right &&
+            py >= rect.top && py <= rect.bottom;
           if (inside) inventoryDiv.classList.add("over");
           else inventoryDiv.classList.remove("over");
         }
@@ -277,7 +281,9 @@ const enableCameraControls = false;
     updateMouseFromEvent(event);
 
     if (dragging) {
-      const invRect = inventoryDiv ? inventoryDiv.getBoundingClientRect() : null;
+      const invRect = inventoryDiv
+        ? inventoryDiv.getBoundingClientRect()
+        : null;
       const mouseX = event.clientX;
       const mouseY = event.clientY;
 
@@ -400,7 +406,7 @@ const enableCameraControls = false;
       physics.update(deltaTime);
     }
 
-    updateHoverState()
+    updateHoverState();
 
     // Drag cube
     if (dragging) {
@@ -606,6 +612,6 @@ const enableCameraControls = false;
   saveButton.addEventListener("click", () => {
     alert("Save game feature is not implemented yet.");
   });
-  
+
   // #endregion
 })();
