@@ -1,10 +1,23 @@
 // deno-lint-ignore-file no-explicit-any
+// #region - Imports ----------
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { PhysicsEngine } from "./classes/PhysicsEngine.ts";
 import { GameScene } from "./classes/GameScene.ts";
 import { SceneManager } from "./classes/SceneManager.ts";
 import { SaveManager } from "./classes/SaveManager.ts";
+
+// Import images
+import languagesImg from "../src/assets/Languages.png";
+import USAFlag from "../src/assets/Flag_USA.png";
+import IsraelFlag from "../src/assets/Flag_Israel.png";
+import JapanFlag from "../src/assets/Flag_Japan.png";
+import LightModeImg from "../src/assets/LightMode.png";
+import DarkModeImg from "../src/assets/DarkMode.png";
+import ResetImg from "../src/assets/Reset.png";
+import SaveImg from "../src/assets/Save.png";
+
+// #endregion
 
 // ---------- Settings ----------
 const enableCameraControls = false;
@@ -691,7 +704,7 @@ const enableCameraControls = false;
 
   // Language image button
   const langImg = document.createElement("img");
-  langImg.src = "/workspaces/cmpm-121-final-project/assets/Languages.png";
+  langImg.src = languagesImg;
   langImg.alt = "Change Language";
   langImg.title = "Change Language";
   langImg.className = "ui-btn-img";
@@ -720,25 +733,13 @@ const enableCameraControls = false;
   }
 
   langMenu.appendChild(
-    createLangButton(
-      "/workspaces/cmpm-121-final-project/assets/Flag_USA.png",
-      "english",
-      "English",
-    ),
+    createLangButton(USAFlag, "english", "English"),
   );
   langMenu.appendChild(
-    createLangButton(
-      "/workspaces/cmpm-121-final-project/assets/Flag_Israel.png",
-      "hebrew",
-      "Hebrew",
-    ),
+    createLangButton(IsraelFlag, "hebrew", "Hebrew"),
   );
   langMenu.appendChild(
-    createLangButton(
-      "/workspaces/cmpm-121-final-project/assets/Flag_Japan.png",
-      "japanese",
-      "Japanese",
-    ),
+    createLangButton(JapanFlag, "japanese", "Japanese"),
   );
 
   // Toggle / show menu next to the language button
@@ -769,9 +770,7 @@ const enableCameraControls = false;
     const isDark = InvBox.classList.contains("dark");
     // Show LightMode icon when currently dark (clicking will switch to light),
     // and show DarkMode icon when currently light.
-    modeImg.src = isDark
-      ? "/workspaces/cmpm-121-final-project/assets/LightMode.png"
-      : "/workspaces/cmpm-121-final-project/assets/DarkMode.png";
+    modeImg.src = isDark ? LightModeImg : DarkModeImg;
     // Also ensure the buttons box knows about dark mode so we can style icons
     if (isDark) {
       ButtonsBox.classList.add("dark");
@@ -806,7 +805,7 @@ const enableCameraControls = false;
 
   // Reset image button
   const resetImg = document.createElement("img");
-  resetImg.src = "/workspaces/cmpm-121-final-project/assets/Reset.png";
+  resetImg.src = ResetImg;
   resetImg.alt = "Reset Game";
   resetImg.title = "Reset Game";
   resetImg.className = "ui-btn-img";
@@ -822,7 +821,7 @@ const enableCameraControls = false;
 
   // Save image button
   const saveImg = document.createElement("img");
-  saveImg.src = "/workspaces/cmpm-121-final-project/assets/Save.png";
+  saveImg.src = SaveImg;
   saveImg.alt = "Save Game";
   saveImg.title = "Save Game";
   saveImg.className = "ui-btn-img";
