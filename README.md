@@ -82,3 +82,27 @@ While our roles didn't change or what task each role was supposed to fullfill, w
 Working on the F2 requirements changed our plan a lot compared to F1. In F1 we only had to make one small puzzle in one room, so things were pretty simple. For F2 we had to think about scenes, objects, inventory, and how everything connects, which made the game feel bigger. We had to rethink some of our ideas so the physics puzzle actually worked when implementing the new features. Our roles also stayed the same like in F1. Overall, F2 showed us how much more planning we need when the game gets more complex even if it's such simple changes overall.
 
 #### ---End of Entry------------------------------------------------------------------
+
+# Devlog Entry - 12/4/2025
+
+## Selected requirements
+For F3, we picked requirements 3, 4, 5, and 6. We chose these because they fit well with what we already built during F2, and they were features we wanted to learn more about. The save system felt useful for making our game feel more complete. Light and dark mode was already close because of our dark background, so we wanted to finish that idea. Touchscreen controls made sense because our point and click design already works with dragging an object. For language support, we thought it would be fun to see if our text system that works in English could also work with a logographic language, and a right to left language.
+
+## How we satisfied the software requirements
+
+### Requirement 3: Save system
+We added a full save and load system in `SaveManager.ts`. This file stores the current scene, important puzzle states, and the inventory. Every time the player enters a new scene or picks up an item, we call the save function so the game keeps the latest state. When the game starts, the save manager checks if there is already a save file and loads it. This makes the game continue from where the player left off even if the browser is closed. We added multiple save points by saving different keys, and we support auto save by calling the save method whenever something important changes.
+
+### Requirement 4: Light and dark visual themes
+We added a light and dark mode system that responds to the browser or operating system settings. The game listens for theme changes and updates the UI by adding a `.dark` class to the body. The CSS file controls all the style changes, including inventory color, UI button color, and text color. In `style.css` you can see both light and dark rules for our main UI parts, like the inventory and language menu. We also linked the theme to in game lighting, so the scenes look brighter in light mode and darker in dark mode. This makes the theme feel like it is part of the world instead of just a cosmetic border change.
+
+### Requirement 5: Touchscreen gameplay  
+We added full touchscreen support on top of the existing mouse controls. We did this by adding pointer and touch events in `main.ts`, so players can tap to change scenes, tap to open menus, and drag the cube with a finger. The mouse controls still work the same as before, so the game supports both styles of input at the same time. This makes the game playable on phones and tablets while still working on normal computers.
+
+### Requirement 6: Three language support (English, Hebrew, and Japanese)  
+We added a language menu and a full text system so the game works in English, Hebrew, and Japanese. The menu appears when the player opens the UI panel. In `main.ts` we store the currently selected language and load the matching text file for tutorials and messages. The CSS already supports flipping text direction because Hebrew reads right to left, so the layout updates when that language is selected. Japanese uses a logographic script, so we made sure our font and spacing worked correctly. The language flags in `style.css` help the player pick the language they want. The system updates all main UI text when the player changes languages, so the game can be played from start to finish in all three languages.
+
+## Reflection
+F3 changed our plan more than we expected. On top of the feedback we corrected from the playtesting, nce we added the save system and theme changes, we had to reorganize some of our older code so everything stayed consistent between scenes. Adding touchscreen controls also made us rethink how dragging and clicking actually worked. The language system pushed us to keep all our text in one place instead of writing it inline, which made the game easier to manage. Overall, F3 made us clean up our project and think more about how real games handle saving, themes, and accessibility. It helped us see how many small systems need to work together so the player has a smooth experience.
+
+#### ---End of Entry------------------------------------------------------------------
