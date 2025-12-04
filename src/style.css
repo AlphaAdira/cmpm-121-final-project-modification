@@ -68,7 +68,7 @@ canvas {
   top: 35%;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 32px;
+  font-size: 30px;
   font-weight: bold;
   z-index: 1000;
   pointer-events: none;
