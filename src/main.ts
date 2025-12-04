@@ -622,7 +622,9 @@ const enableCameraControls = false;
     const isDark = InvBox.classList.contains("dark");
     // Show LightMode icon when currently dark (clicking will switch to light),
     // and show DarkMode icon when currently light.
-    modeImg.src = isDark ? "src/assets/LightMode.png" : "src/assets/DarkMode.png";
+    modeImg.src = isDark
+      ? "src/assets/LightMode.png"
+      : "src/assets/DarkMode.png";
     // Also ensure the buttons box knows about dark mode so we can style icons
     if (isDark) {
       ButtonsBox.classList.add("dark");
