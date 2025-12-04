@@ -30,6 +30,7 @@ export class SaveManager {
   private autosaveId: number | null = null;
   private storageKey = "cmpm121_save";
   private isDragging = false;
+  private tutorialStep: number = 0;
 
   constructor(opts: {
     sceneManager: SceneManager;
@@ -38,6 +39,7 @@ export class SaveManager {
     invBox: HTMLElement;
     renderer: THREE.WebGLRenderer;
     grounds: { [k: string]: THREE.Mesh };
+    tutorialStep?: number;
   }) {
     this.sceneManager = opts.sceneManager;
     this.physics = opts.physics;
@@ -45,11 +47,17 @@ export class SaveManager {
     this.invBox = opts.invBox;
     this.renderer = opts.renderer;
     this.grounds = opts.grounds;
+    this.tutorialStep = opts.tutorialStep ?? 0;
   }
 
   // Public method to update dragging state
   setDragging(dragging: boolean): void {
     this.isDragging = dragging;
+  }
+
+  // Public method to update tutorial step
+  setTutorialStep(tutorialStep: number): void {
+    this.tutorialStep = tutorialStep;
   }
 
   // #region - Save ----------
@@ -149,13 +157,14 @@ export class SaveManager {
       },
       activeScene: this.sceneManager.getCurrentSceneKey(),
       darkMode: this.invBox.classList.contains("dark"),
+      tutorialStep: this.tutorialStep,
       savedAt: Date.now(),
     };
 
-    // Debug: show what we're saving (remove or comment out later)
     try {
       //console.log("[SaveManager] saving mainCube:", data.mainCubeState);
       //console.log("[SaveManager] mainCube local position before save:", { x: this.mainCube.position.x, y: this.mainCube.position.y, z: this.mainCube.position.z });
+      //console.log("[SaveManager] saving tutorialStep:", data.tutorialStep);
     } catch (_e) { /* ignore */ }
 
     localStorage.setItem(this.storageKey, JSON.stringify(data));
@@ -360,6 +369,15 @@ export class SaveManager {
     // Active scene
     if (data.activeScene) this.sceneManager.switchScene(data.activeScene);
 
+    // Tutorial step
+    if (typeof data.tutorialStep === "number") {
+      this.tutorialStep = data.tutorialStep;
+      (globalThis as any).tutorialStep = this.tutorialStep;
+      try {
+        (globalThis as any).updateTutorial();
+      } catch (_e) { /* ignore */ }
+    }
+
     return true;
   }
 
@@ -377,6 +395,14 @@ export class SaveManager {
 
     const failMsg = document.getElementById("fail");
     if (failMsg) failMsg.remove();
+
+    // Reset tutorial step
+    this.tutorialStep = 0;
+    (globalThis as any).tutorialStep = 0;
+    try {
+      (globalThis as any).updateTutorial();
+      //console.log(`[SaveManager] Tutorial step reset to 0`);
+    } catch (_e) { /* ignore */ }
 
     // Reset mainCube
     try {

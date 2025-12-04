@@ -189,3 +189,23 @@ canvas {
 .buttons-box.dark img.ui-btn-img {
   filter: invert(1) brightness(2) saturate(1.1);
 }
+
+.tutorial-text {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 20px;
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  text-shadow: 2px 2px 4px #000;
+  z-index: 2000;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+body:not(.dark) .tutorial-text {
+  color: black;
+  text-shadow: none;
+}

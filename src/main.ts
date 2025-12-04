@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-explicit-any
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { PhysicsEngine } from "./classes/PhysicsEngine.ts";
@@ -26,6 +27,14 @@ const enableCameraControls = false;
   const sceneManager = new SceneManager();
 
   let lastTime = globalThis.performance?.now() ?? 0;
+
+  // Create tutorial text element
+  const tutorialText = document.createElement("div");
+  tutorialText.id = "tutorial-text";
+  tutorialText.className = "tutorial-text";
+  tutorialText.textContent =
+    "Pick up the cube. You can also change scenes with the arrow buttons.";
+  document.body.appendChild(tutorialText);
 
   // #region - Scene Navigation Buttons ----------
   const btnLeft = document.createElement("div");
@@ -58,7 +67,7 @@ const enableCameraControls = false;
   // Create renderer with alpha so we can temporarily make the canvas transparent
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setSize(globalThis.innerWidth, globalThis.innerHeight);
-  renderer.setClearColor(0xffffff, 1); // default opaque white background
+  renderer.setClearColor(0xffffff, 1); // Default opaque white background
   document.body.appendChild(renderer.domElement);
 
   // Add camera orbit controls
@@ -230,6 +239,12 @@ const enableCameraControls = false;
       inInventory = false;
       physics.removeMesh(mainCube);
       physicsActive = false;
+
+      if (tutorialStep === 0) {
+        tutorialStep = 1;
+        updateTutorial();
+      }
+
       setCursor("grabbing");
 
       if (inventoryDiv) {
@@ -303,6 +318,11 @@ const enableCameraControls = false;
         inInventory = true;
         mainCube.visible = false;
         createInvItem("#00ff00");
+
+        if (tutorialStep === 1) {
+          tutorialStep = 2;
+          updateTutorial();
+        }
       } else {
         mainCube.visible = true;
         if (!physicsActive) {
@@ -512,6 +532,7 @@ const enableCameraControls = false;
 
   // Initial animate call
   animate();
+
   // #endregion
 
   // #region - Success Call ----------
@@ -557,6 +578,11 @@ const enableCameraControls = false;
   // Add event listener for pulling cube out of inventory
   inventoryDiv?.addEventListener("click", () => {
     if (!inInventory || dragging) return;
+
+    if (tutorialStep === 2) {
+      tutorialStep = 3;
+      updateTutorial();
+    }
 
     // Remove visual item
     const existing = document.getElementById("invItem");
@@ -632,12 +658,14 @@ const enableCameraControls = false;
       btnLeft.style.backgroundColor = "rgba(153, 153, 153, 1.0)";
       btnRight.style.color = "white";
       btnRight.style.backgroundColor = "rgba(153, 153, 153, 1.0)";
+      tutorialText.style.color = "white";
     } else {
       ButtonsBox.classList.remove("dark");
       btnLeft.style.color = "black";
       btnLeft.style.backgroundColor = "rgba(102, 102, 102, 1.0)";
       btnRight.style.color = "black";
       btnRight.style.backgroundColor = "rgba(102, 102, 102, 1.0)";
+      tutorialText.style.color = "black";
     }
   }
 
@@ -666,6 +694,9 @@ const enableCameraControls = false;
     saveManager.reset();
     updateSceneButtons();
     updateModeIcon();
+
+    tutorialStep = 0;
+    updateTutorial();
   });
 
   // Save image button
@@ -685,5 +716,40 @@ const enableCameraControls = false;
 
   // #endregion
 
-  // Save/Load/Reset handled by SaveManager
+  // #region - Tutorial Text ----------
+  function setTutorialText(text: string) {
+    tutorialText.textContent = text;
+  }
+
+  let tutorialStep = (globalThis as any).tutorialStep ?? 0;
+  (globalThis as any).tutorialStep = tutorialStep;
+
+  function updateTutorial() {
+    saveManager.setTutorialStep(tutorialStep);
+
+    switch (tutorialStep) {
+      case 0:
+        setTutorialText(
+          "Pick up the cube. You can also change scenes with the arrow buttons.",
+        );
+        break;
+
+      case 1:
+        setTutorialText("Drop the cube into the inventory box.");
+        break;
+
+      case 2:
+        setTutorialText("Click the cube in the inventory to take it out.");
+        break;
+
+      case 3:
+        setTutorialText(""); // Tutorial is finished
+        break;
+    }
+  }
+
+  // Initial tutorial update
+  updateTutorial();
+
+  // #endregion
 })();
