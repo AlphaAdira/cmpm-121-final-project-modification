@@ -59,21 +59,27 @@ export class SaveManager {
 
     // Build scenes array using LOCAL transforms (simpler: local = what we see in scene)
     const scenes: SceneState[] = entries.map(({ key, scene }) => {
-      const meshes = scene.getMeshes().map((m) => {
-        m.updateMatrixWorld(true);
+      const meshes = scene.getMeshes()
+        .filter((m) => {
+          // Skip ground meshes - they have fixed collision sizes and shouldn't be saved
+          if (this.grounds && Object.values(this.grounds).some(g => g?.uuid === m.uuid)) return false;
+          return true;
+        })
+        .map((m) => {
+          m.updateMatrixWorld(true);
 
-        return {
-          uuid: m.uuid,
-          position: [m.position.x, m.position.y, m.position.z] as [number, number, number],
-          quaternion: [m.quaternion.x, m.quaternion.y, m.quaternion.z, m.quaternion.w] as [number, number, number, number],
-          scale: [m.scale.x, m.scale.y, m.scale.z] as [number, number, number],
-          color: (m.material && (m.material as THREE.MeshStandardMaterial).color)
-            ? (m.material as THREE.MeshStandardMaterial).color.getHex()
-            : null,
-          visible: m.visible,
-          mass: m.userData.mass ?? 0,
-        } as MeshState;
-      });
+          return {
+            uuid: m.uuid,
+            position: [m.position.x, m.position.y, m.position.z] as [number, number, number],
+            quaternion: [m.quaternion.x, m.quaternion.y, m.quaternion.z, m.quaternion.w] as [number, number, number, number],
+            scale: [m.scale.x, m.scale.y, m.scale.z] as [number, number, number],
+            color: (m.material && (m.material as THREE.MeshStandardMaterial).color)
+              ? (m.material as THREE.MeshStandardMaterial).color.getHex()
+              : null,
+            visible: m.visible,
+            mass: m.userData.mass ?? 0,
+          } as MeshState;
+        });
 
       return { key, meshes };
     });
@@ -114,8 +120,8 @@ export class SaveManager {
 
     // Debug: show what we're saving (remove or comment out later)
     try {
-      console.log("[SaveManager] saving mainCube:", data.mainCubeState);
-      console.log("[SaveManager] mainCube local position before save:", { x: this.mainCube.position.x, y: this.mainCube.position.y, z: this.mainCube.position.z });
+      //console.log("[SaveManager] saving mainCube:", data.mainCubeState);
+      //console.log("[SaveManager] mainCube local position before save:", { x: this.mainCube.position.x, y: this.mainCube.position.y, z: this.mainCube.position.z });
     } catch (_e) { /* ignore */ }
 
     localStorage.setItem(this.storageKey, JSON.stringify(data));
@@ -132,11 +138,11 @@ export class SaveManager {
     try {
       data = JSON.parse(raw);
     } catch (_e) {
-      console.log("[SaveManager] Failed to parse save");
+      //console.log("[SaveManager] Failed to parse save");
       return false;
     }
     if (!data || !data.scenes) {
-      console.log("[SaveManager] Invalid save data");
+      //console.log("[SaveManager] Invalid save data");
       return false;
     }
 
@@ -150,6 +156,9 @@ export class SaveManager {
       for (const mstate of s.meshes) {
         // Skip mainCube in this loop—we handle it separately later
         if (mstate.uuid === this.mainCube.uuid) continue;
+        
+        // Skip ground meshes - they have fixed collision sizes and shouldn't be scaled from saves
+        if (this.grounds && Object.values(this.grounds).some(g => g?.uuid === mstate.uuid)) continue;
 
         const mesh = scene.getMeshes().find((mm) => mm.uuid === mstate.uuid);
         if (!mesh) continue;
@@ -245,11 +254,11 @@ export class SaveManager {
     // Always restore mainCube transform from saved mesh state if present
     // This must happen AFTER addMesh so physics body exists but BEFORE inventory override
     if (cubeMeshState) {
-      console.log("[SaveManager] Restoring mainCube from saved state:", cubeMeshState);
+      //console.log("[SaveManager] Restoring mainCube from saved state:", cubeMeshState);
       if (cubeMeshState.position) this.mainCube.position.set(...cubeMeshState.position);
       if (cubeMeshState.quaternion) this.mainCube.quaternion.set(...cubeMeshState.quaternion);
       if (cubeMeshState.scale) this.mainCube.scale.set(...cubeMeshState.scale);
-      console.log("[SaveManager] mainCube position after restore:", { x: this.mainCube.position.x, y: this.mainCube.position.y, z: this.mainCube.position.z });
+      //console.log("[SaveManager] mainCube position after restore:", { x: this.mainCube.position.x, y: this.mainCube.position.y, z: this.mainCube.position.z });
       if (cubeMeshState.color && this.mainCube.material && (this.mainCube.material as THREE.MeshStandardMaterial).color) {
         (this.mainCube.material as THREE.MeshStandardMaterial).color.setHex(cubeMeshState.color);
       }
@@ -265,7 +274,7 @@ export class SaveManager {
         }
       } catch (_e) { /* ignore */ }
     } else {
-      console.log("[SaveManager] No saved mainCube mesh state found");
+      //console.log("[SaveManager] No saved mainCube mesh state found");
     }
 
     // Theme
@@ -288,13 +297,15 @@ export class SaveManager {
     // Remove saved state
     localStorage.removeItem(this.storageKey);
 
-    // Default theme
-    this.invBox.classList.remove("dark");
-    this.renderer.setClearColor(0xffffff, 1);
-
-    // Clear inventory UI
-    const existing = document.getElementById("invItem");
-    if (existing) existing.remove();
+    // Clear inventory UI and win/fail messages
+    const invItem = document.getElementById("invItem");
+    if (invItem) invItem.remove();
+    
+    const successMsg = document.getElementById("success");
+    if (successMsg) successMsg.remove();
+    
+    const failMsg = document.getElementById("fail");
+    if (failMsg) failMsg.remove();
 
     // Reset mainCube
     try { if (this.mainCube.userData.physicsBody) this.physics.removeMesh(this.mainCube); } catch (_e) { /* ignore */ }
@@ -303,6 +314,7 @@ export class SaveManager {
     this.mainCube.scale.set(1, 1, 1);
     this.mainCube.visible = true;
     this.mainCube.userData.mass = 1;
+
     // Put cube into default scene (first scene in manager)
     const first = this.sceneManager.getAllEntries()[0];
     if (first) {
@@ -312,16 +324,16 @@ export class SaveManager {
       first.scene.addMesh(this.mainCube, 1);
     }
 
-    // Reset ground objects if provided
+    // Reset ground objects if provided (use correct original scales)
     if (this.grounds) {
       const g1 = this.grounds["ground1"];
       const g2 = this.grounds["ground2"];
       const wg = this.grounds["winGround"];
       const fg = this.grounds["failGround"];
-      if (g1) { g1.position.set(0, -5, 0); g1.scale.set(20, 1, 20); }
-      if (g2) { g2.position.set(0, -5, 0); g2.scale.set(20, 1, 20); }
-      if (wg) { wg.position.set(5, -4, 0); wg.scale.set(5, 1, 20); }
-      if (fg) { fg.position.set(-5, -4, 0); fg.scale.set(5, 1, 20); }
+      if (g1) { g1.position.set(0, -5, 0); g1.scale.set(1, 1, 1); }
+      if (g2) { g2.position.set(0, -5, 0); g2.scale.set(1, 1, 1); }
+      if (wg) { wg.position.set(5, -4, 0); wg.scale.set(1, 1, 1); }
+      if (fg) { fg.position.set(-5, -4, 0); fg.scale.set(1, 1, 1); }
     }
 
     // Switch to first scene
@@ -332,9 +344,10 @@ export class SaveManager {
     this.save();
   }
 
+  // #region - Autosave ----------
   startAutoSave(intervalMs = 5000) {
     this.stopAutoSave();
-    console.log("[SaveManager] Starting autosave every", intervalMs, "ms");
+    //console.log("[SaveManager] Starting autosave every", intervalMs, "ms");
     try {
       this.autosaveId = globalThis.setInterval(() => {
         try {
@@ -350,7 +363,7 @@ export class SaveManager {
         }
       }, intervalMs) as unknown as number;
     } catch (_e) {
-      console.error("[SaveManager] Failed to start autosave:", _e);
+      //console.error("[SaveManager] Failed to start autosave:", _e);
       this.autosaveId = null;
     }
   }

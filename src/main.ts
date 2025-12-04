@@ -630,7 +630,10 @@ const enableCameraControls = false;
   ButtonsBox.appendChild(resetButton);
 
   // Reset button event
-  resetButton.addEventListener("click", () => saveManager.reset());
+  resetButton.addEventListener("click", () => {
+    saveManager.reset();
+    updateSceneButtons();
+  });
 
   // Save button (for manual testing)
   const saveButton = document.createElement("button");
