@@ -158,7 +158,7 @@ export class PhysicsEngine {
     // Rotation
     const quat = new THREE.Quaternion().setFromEuler(rot);
     transform.setRotation(
-      new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w)
+      new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w),
     );
 
     body.setWorldTransform(transform);
