@@ -30,13 +30,13 @@ const enableCameraControls = false;
   const btnLeft = document.createElement("div");
   btnLeft.innerHTML = "⟵";
   btnLeft.className = "nav-btn nav-left";
-  btnLeft.style.display = "none"; // hidden by default (visibility toggled in code)
+  btnLeft.style.display = "none"; // Hidden by default (visibility toggled in code)
   document.body.appendChild(btnLeft);
 
   const btnRight = document.createElement("div");
   btnRight.innerHTML = "⟶";
   btnRight.className = "nav-btn nav-right";
-  btnRight.style.display = "none"; // hidden by default (visibility toggled in code)
+  btnRight.style.display = "none"; // Hidden by default (visibility toggled in code)
   document.body.appendChild(btnRight);
   // #endregion
 
@@ -50,10 +50,10 @@ const enableCameraControls = false;
   );
   camera.position.z = 10;
 
-  // Create renderer
-  const renderer = new THREE.WebGLRenderer();
+  // Create renderer with alpha so we can temporarily make the canvas transparent
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setSize(globalThis.innerWidth, globalThis.innerHeight);
-  renderer.setClearColor(0xffffff); // how to set background color
+  renderer.setClearColor(0xffffff, 1); // default opaque white background
   document.body.appendChild(renderer.domElement);
 
   // Add camera orbit controls
@@ -65,7 +65,7 @@ const enableCameraControls = false;
 
     // Set camera controls
     cameraControls.mouseButtons = {
-      LEFT: null,
+      LEFT: THREE.MOUSE.ROTATE,
       MIDDLE: THREE.MOUSE.DOLLY, // Zoom
       RIGHT: THREE.MOUSE.ROTATE, // Orbit camera
     };
@@ -87,7 +87,7 @@ const enableCameraControls = false;
   light2.position.set(1, 1, 1);
   scene2.addLight(light2);
 
-  // Add a static ground
+  // Add static ground planes
   const ground1 = physics.addBox(
     new THREE.Vector3(20, 1, 20), // Ground size
     new THREE.Vector3(0, -5, 0), // Starting position
@@ -104,7 +104,7 @@ const enableCameraControls = false;
   );
   scene2.addMesh(ground2);
 
-  // Add a target ground
+  // Add a win ground
   const winGround = physics.addBox(
     new THREE.Vector3(5, 1, 20), // Win ground size
     new THREE.Vector3(5, -4, 0), // Starting position
@@ -127,14 +127,23 @@ const enableCameraControls = false;
     new THREE.Vector3(1, 1, 1), // Cube size
     new THREE.Vector3(0, -4, 0), // Starting position
     1, // Mass
-    0x00ff00, // Color
+    0x00ff00, // Green
   );
   scene1.addMesh(mainCube);
+  // Create a silhouette outline mesh on cube
+  const outlineMat = new THREE.MeshBasicMaterial({ color: 0xffff66, side: THREE.BackSide });
+  const outlineGeo = (mainCube.geometry as THREE.BufferGeometry).clone();
+  const outlineMesh = new THREE.Mesh(outlineGeo, outlineMat);
+  outlineMesh.scale.set(1.08, 1.08, 1.08);
+  outlineMesh.visible = false;
+  mainCube.add(outlineMesh);
+  mainCube.userData.outline = outlineMesh;
   let physicsActive = true; // Track if cube is under physics simulation
 
   // Add scenes to scene manager
   sceneManager.addScene("room1", scene1);
   sceneManager.addScene("room2", scene2);
+
   // Ensure physics bodies are active only for the current scene
   function updateScenePhysics() {
     const active = sceneManager.getCurrentScene();
@@ -189,13 +198,19 @@ const enableCameraControls = false;
   let inventoryDiv: HTMLElement | null = null;
   let inInventory = false;
 
+  // Update mouse coordinates from event
+  function updateMouseFromEvent(evt: MouseEvent) {
+    // Use canvas bounding rect in case the canvas is scaled
+    const rect = renderer.domElement.getBoundingClientRect();
+    mouse.x = ((evt.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((evt.clientY - rect.top) / rect.height) * 2 + 1;
+  }
+
   // Listen for mouse down
   renderer.domElement.addEventListener("mousedown", (event) => {
     if (event.button !== 0) return; // Only accept left click
 
-    // Normalize mouse coordinates
-    mouse.x = (event.clientX / globalThis.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / globalThis.innerHeight) * 2 + 1;
+    updateMouseFromEvent(event as MouseEvent);
 
     // Check if raycaster hits cube
     raycaster.setFromCamera(mouse, camera);
@@ -203,26 +218,66 @@ const enableCameraControls = false;
 
     if (intersects.length > 0) {
       dragging = true;
-      inInventory = false; // In case we're pulling from inventory
+      inInventory = false;
       physics.removeMesh(mainCube);
       physicsActive = false;
+      setCursor("grabbing");
+
+      if (inventoryDiv) {
+        inventoryDiv.classList.add("dragging");
+        // While dragging, allow the 3D canvas to render above the inventory
+        inventoryDiv.style.pointerEvents = "none";
+      }
+      renderer.domElement.style.zIndex = "1100";
     }
   });
 
   // Listen for mouse move
   renderer.domElement.addEventListener("mousemove", (event) => {
-    // Update normalized mouse coordinates every frame
-    mouse.x = (event.clientX / globalThis.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / globalThis.innerHeight) * 2 + 1;
+    updateMouseFromEvent(event as MouseEvent);
+
+    // Update cursor when hovering over the cube (on canvas only)
+    try {
+      raycaster.setFromCamera(mouse, camera);
+      if (dragging) {
+        setCursor("grabbing");
+        // Highlight inventory when pointer is over it while dragging
+        if (inventoryDiv) {
+          const rect = inventoryDiv.getBoundingClientRect();
+          const px = event.clientX;
+          const py = event.clientY;
+          const inside = px >= rect.left && px <= rect.right && py >= rect.top && py <= rect.bottom;
+          if (inside) inventoryDiv.classList.add("over");
+          else inventoryDiv.classList.remove("over");
+        }
+      } else if (mainCube.visible) {
+        const hit = raycaster.intersectObject(mainCube);
+        if (hit.length > 0) {
+          setCursor("grab");
+          // Show silhouette outline
+          setOutline(mainCube, true);
+          mainCube.userData.isHovered = true;
+        } else {
+          setCursor("");
+          // Hide outline
+          setOutline(mainCube, false);
+          mainCube.userData.isHovered = false;
+        }
+      } else {
+        setCursor("");
+      }
+    } catch (_e) {
+      // Ignore raycast errors during init
+    }
   });
 
   // Listen for mouse up
-  renderer.domElement.addEventListener("mouseup", (event: MouseEvent) => {
+  function handlePointerUp(event: MouseEvent) {
+    // Update normalized mouse coords from the event before raycasting
+    updateMouseFromEvent(event);
+
     if (dragging) {
-      // inventoryDiv can be null
-      const invRect = inventoryDiv
-        ? inventoryDiv.getBoundingClientRect()
-        : null;
+      const invRect = inventoryDiv ? inventoryDiv.getBoundingClientRect() : null;
       const mouseX = event.clientX;
       const mouseY = event.clientY;
 
@@ -247,9 +302,89 @@ const enableCameraControls = false;
           physicsActive = true;
         }
       }
+
+      if (inventoryDiv) {
+        inventoryDiv.classList.remove("dragging");
+        inventoryDiv.classList.remove("over");
+        inventoryDiv.style.pointerEvents = "auto";
+      }
+
+      // Restore canvas stacking and clear hover/outline
+      renderer.domElement.style.zIndex = "";
+
+      // Always clear hover/outline state explicitly on drop
+      mainCube.userData.isHovered = false;
+      setOutline(mainCube, false);
+
       dragging = false;
+
+      // Do a final raycast using the updated mouse to set the cursor/outline correctly
+      try {
+        raycaster.setFromCamera(mouse, camera);
+        const hit = raycaster.intersectObject(mainCube);
+        if (hit.length > 0 && mainCube.visible) {
+          setCursor("grab");
+          setOutline(mainCube, true);
+          mainCube.userData.isHovered = true;
+        } else {
+          setCursor("");
+          setOutline(mainCube, false);
+          mainCube.userData.isHovered = false;
+        }
+      } catch (_e) {
+        setCursor("");
+      }
     }
-  });
+  }
+
+  renderer.domElement.addEventListener("mouseup", handlePointerUp);
+  // Listen on window so releasing outside the canvas still ends dragging
+  globalThis.addEventListener("mouseup", handlePointerUp);
+
+  // Hover state helper
+  function updateHoverState() {
+    // No hover while dragging
+    if (dragging) {
+      setOutline(mainCube, false);
+      setCursor("grabbing");
+      return;
+    } else {
+      setCursor("");
+    }
+
+    raycaster.setFromCamera(mouse, camera);
+    const hit = raycaster.intersectObject(mainCube, false);
+
+    const hovered = hit.length > 0 && mainCube.visible;
+
+    if (hovered) {
+      setCursor("grab");
+      setOutline(mainCube, true);
+    } else {
+      setCursor("");
+      setOutline(mainCube, false);
+    }
+
+    mainCube.userData.isHovered = hovered;
+  }
+
+  // Outline helper
+  function setOutline(mesh: THREE.Mesh, on: boolean) {
+    const outline = mesh.userData.outline;
+    if (!outline) return;
+    outline.visible = on;
+  }
+
+  // Cursor helper
+  function setCursor(c: string) {
+    renderer.domElement.style.cursor = c;
+    try {
+      document.body.style.cursor = c;
+    } catch (_e) {
+      // Ignore if document.body isn't writable
+    }
+  }
+
   // #endregion
 
   // #region - Animation Loop ----------
@@ -257,13 +392,15 @@ const enableCameraControls = false;
   function animate(time = lastTime) {
     requestAnimationFrame(animate);
 
-    const deltaTime = (time - lastTime) * 0.001; // Convert ms → seconds
+    const deltaTime = (time - lastTime) * 0.001; // Convert ms to seconds
     lastTime = time;
 
     if (physics.isReady()) {
       // Use the public update() method rather than reaching into the private internals
       physics.update(deltaTime);
     }
+
+    updateHoverState()
 
     // Drag cube
     if (dragging) {
@@ -372,7 +509,6 @@ const enableCameraControls = false;
   InvBox.id = "inventory";
   InvBox.className = "inventory";
   document.body.appendChild(InvBox);
-  // Set the inventoryDiv reference now that the element exists
   inventoryDiv = InvBox;
 
   function createInvItem(color: string) {
@@ -383,7 +519,7 @@ const enableCameraControls = false;
     const item = document.createElement("div");
     item.id = "invItem";
     item.className = "inv-item";
-    // keep color dynamic
+    // Keep color dynamic
     item.style.background = color;
     InvBox.appendChild(item);
   }
@@ -404,7 +540,7 @@ const enableCameraControls = false;
     // Ensure the cube exists in the current active scene so it renders there
     const currentScene = sceneManager.getCurrentScene();
     if (currentScene) {
-      // Remove from known scenes first to avoid duplicates (safe no-op if not present)
+      // Remove from known scenes first to avoid duplicates
       try {
         scene1.removeMesh(mainCube);
       } catch (_e) {
@@ -432,40 +568,44 @@ const enableCameraControls = false;
   ButtonsBox.id = "ui-buttons";
   ButtonsBox.className = "buttons-box";
   document.body.appendChild(ButtonsBox);
-  // language button
+
+  // Language button
   const langButton = document.createElement("button");
   langButton.textContent = "Change Language";
-  // buttons inherit styling from CSS; pointer-events enabled via CSS
-  ButtonsBox.appendChild(langButton);
-  // light/dark mode button
-  const modeButton = document.createElement("button");
-  modeButton.textContent = "Toggle Light/Dark Mode";
-  ButtonsBox.appendChild(modeButton);
-  // save button
-  const saveButton = document.createElement("button");
-  saveButton.textContent = "Save Game";
-  ButtonsBox.appendChild(saveButton);
 
-  // language button event
+  ButtonsBox.appendChild(langButton);
+
+  // Language button event
   langButton.addEventListener("click", () => {
     alert("Language change feature is not implemented yet.");
   });
 
-  // mode button event
+  // Light/dark mode button
+  const modeButton = document.createElement("button");
+  modeButton.textContent = "Toggle Light/Dark Mode";
+  ButtonsBox.appendChild(modeButton);
+
+  // Light mode button event
   modeButton.addEventListener("click", () => {
     const current = renderer.getClearColor(new THREE.Color());
     if (current.getHex() === 0xffffff) {
-      renderer.setClearColor(0x000000);
+      renderer.setClearColor(0x000000, 1);
       InvBox.classList.add("dark");
     } else {
-      renderer.setClearColor(0xffffff);
+      renderer.setClearColor(0xffffff, 1);
       InvBox.classList.remove("dark");
     }
   });
 
-  // save button event
+  // Save button
+  const saveButton = document.createElement("button");
+  saveButton.textContent = "Save Game";
+  ButtonsBox.appendChild(saveButton);
+
+  // Save button event
   saveButton.addEventListener("click", () => {
     alert("Save game feature is not implemented yet.");
   });
+  
   // #endregion
 })();
