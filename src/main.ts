@@ -691,7 +691,7 @@ const enableCameraControls = false;
 
   // Language image button
   const langImg = document.createElement("img");
-  langImg.src = "src/assets/Languages.png";
+  langImg.src = "/workspaces/cmpm-121-final-project/assets/Languages.png";
   langImg.alt = "Change Language";
   langImg.title = "Change Language";
   langImg.className = "ui-btn-img";
@@ -720,13 +720,25 @@ const enableCameraControls = false;
   }
 
   langMenu.appendChild(
-    createLangButton("src/assets/Flag_USA.png", "english", "English"),
+    createLangButton(
+      "/workspaces/cmpm-121-final-project/assets/Flag_USA.png",
+      "english",
+      "English",
+    ),
   );
   langMenu.appendChild(
-    createLangButton("src/assets/Flag_Israel.png", "hebrew", "Hebrew"),
+    createLangButton(
+      "/workspaces/cmpm-121-final-project/assets/Flag_Israel.png",
+      "hebrew",
+      "Hebrew",
+    ),
   );
   langMenu.appendChild(
-    createLangButton("src/assets/Flag_Japan.png", "japanese", "Japanese"),
+    createLangButton(
+      "/workspaces/cmpm-121-final-project/assets/Flag_Japan.png",
+      "japanese",
+      "Japanese",
+    ),
   );
 
   // Toggle / show menu next to the language button
@@ -758,8 +770,8 @@ const enableCameraControls = false;
     // Show LightMode icon when currently dark (clicking will switch to light),
     // and show DarkMode icon when currently light.
     modeImg.src = isDark
-      ? "src/assets/LightMode.png"
-      : "src/assets/DarkMode.png";
+      ? "/workspaces/cmpm-121-final-project/assets/LightMode.png"
+      : "/workspaces/cmpm-121-final-project/assets/DarkMode.png";
     // Also ensure the buttons box knows about dark mode so we can style icons
     if (isDark) {
       ButtonsBox.classList.add("dark");
@@ -794,7 +806,7 @@ const enableCameraControls = false;
 
   // Reset image button
   const resetImg = document.createElement("img");
-  resetImg.src = "src/assets/Reset.png";
+  resetImg.src = "/workspaces/cmpm-121-final-project/assets/Reset.png";
   resetImg.alt = "Reset Game";
   resetImg.title = "Reset Game";
   resetImg.className = "ui-btn-img";
@@ -810,7 +822,7 @@ const enableCameraControls = false;
 
   // Save image button
   const saveImg = document.createElement("img");
-  saveImg.src = "src/assets/Save.png";
+  saveImg.src = "/workspaces/cmpm-121-final-project/assets/Save.png";
   saveImg.alt = "Save Game";
   saveImg.title = "Save Game";
   saveImg.className = "ui-btn-img";
