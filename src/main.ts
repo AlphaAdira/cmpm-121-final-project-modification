@@ -28,7 +28,7 @@ const enableCameraControls = false;
   // Ensure DOM is ready before touching document.body / DOM elements.
   if (document.readyState === "loading") {
     await new Promise<void>((resolve) =>
-      document.addEventListener("DOMContentLoaded", () => resolve())
+      document.addEventListener("DOMContentLoaded", () => resolve()),
     );
   }
 
@@ -246,6 +246,167 @@ const enableCameraControls = false;
     mouse.y = -((evt.clientY - rect.top) / rect.height) * 2 + 1;
   }
 
+  // ---------- Touch Support ----------
+  // Track the active touch ID to handle multi-touch; -1 = no active touch
+  let activeTouchId = -1;
+
+  function getTouchFromEvent(touch: Touch): {
+    clientX: number;
+    clientY: number;
+  } {
+    return { clientX: touch.clientX, clientY: touch.clientY };
+  }
+
+  renderer.domElement.addEventListener("touchstart", (event: TouchEvent) => {
+    // Only track the first touch
+    if (activeTouchId !== -1) return;
+
+    const touch = event.touches[0];
+    activeTouchId = touch.identifier;
+
+    const mouseEvt = getTouchFromEvent(touch) as unknown as MouseEvent;
+    updateMouseFromEvent(mouseEvt);
+
+    // Check if raycaster hits cube (reuse mousedown logic)
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObject(mainCube);
+
+    if (intersects.length > 0) {
+      dragging = true;
+      saveManager.setDragging(true);
+      inInventory = false;
+      physics.removeMesh(mainCube);
+      physicsActive = false;
+
+      if (tutorialStep === 0) {
+        tutorialStep = 1;
+        updateTutorial();
+      }
+
+      setCursor("grabbing");
+
+      if (inventoryDiv) {
+        inventoryDiv.classList.add("dragging");
+        inventoryDiv.style.pointerEvents = "none";
+      }
+      renderer.domElement.style.zIndex = "1100";
+    }
+
+    event.preventDefault();
+  });
+
+  renderer.domElement.addEventListener("touchmove", (event: TouchEvent) => {
+    // Find the touch that matches our active ID
+    let activeTouch: Touch | null = null;
+    for (let i = 0; i < event.touches.length; i++) {
+      if (event.touches[i].identifier === activeTouchId) {
+        activeTouch = event.touches[i];
+        break;
+      }
+    }
+
+    if (!activeTouch) return;
+
+    const mouseEvt = getTouchFromEvent(activeTouch) as unknown as MouseEvent;
+    updateMouseFromEvent(mouseEvt);
+
+    // Update visuals while dragging (reuse mousemove logic)
+    try {
+      raycaster.setFromCamera(mouse, camera);
+      if (dragging) {
+        setCursor("grabbing");
+        // Highlight inventory when pointer is over it while dragging
+        if (inventoryDiv) {
+          const rect = inventoryDiv.getBoundingClientRect();
+          const px = activeTouch.clientX;
+          const py = activeTouch.clientY;
+          const inside =
+            px >= rect.left &&
+            px <= rect.right &&
+            py >= rect.top &&
+            py <= rect.bottom;
+          if (inside) inventoryDiv.classList.add("over");
+          else inventoryDiv.classList.remove("over");
+        }
+      }
+    } catch (_e) {
+      // Ignore raycast errors during init
+    }
+
+    event.preventDefault();
+  });
+
+  renderer.domElement.addEventListener("touchend", (event: TouchEvent) => {
+    // Check if the touch that ended was our active touch
+    let wasActiveTouch = false;
+    for (let i = 0; i < event.changedTouches.length; i++) {
+      if (event.changedTouches[i].identifier === activeTouchId) {
+        wasActiveTouch = true;
+        break;
+      }
+    }
+
+    if (!wasActiveTouch) return;
+
+    activeTouchId = -1;
+
+    // Reuse the pointer-up handler logic
+    if (dragging) {
+      // Get the touch position from changedTouches
+      const endTouch = event.changedTouches[0];
+      const mouseEvt = getTouchFromEvent(endTouch) as unknown as MouseEvent;
+      updateMouseFromEvent(mouseEvt);
+
+      // Check if over inventory
+      const invRect = inventoryDiv
+        ? inventoryDiv.getBoundingClientRect()
+        : null;
+      const touchX = endTouch.clientX;
+      const touchY = endTouch.clientY;
+
+      const overInventory =
+        invRect !== null &&
+        touchX >= invRect.left &&
+        touchX <= invRect.right &&
+        touchY >= invRect.top &&
+        touchY <= invRect.bottom;
+
+      if (overInventory) {
+        inInventory = true;
+        mainCube.visible = false;
+        createInvItem("#00ff00");
+
+        if (tutorialStep === 1) {
+          tutorialStep = 2;
+          updateTutorial();
+        }
+      } else {
+        mainCube.visible = true;
+        if (!physicsActive) {
+          if (mainCube.userData.physicsBody) {
+            physics.removeMesh(mainCube);
+            mainCube.userData.physicsBody = null;
+          }
+          physics.addMesh(mainCube, 1);
+          physicsActive = true;
+        }
+      }
+
+      dragging = false;
+      saveManager.setDragging(false);
+      setCursor("");
+
+      if (inventoryDiv) {
+        inventoryDiv.classList.remove("dragging");
+        inventoryDiv.classList.remove("over");
+        inventoryDiv.style.pointerEvents = "auto";
+      }
+      renderer.domElement.style.zIndex = "1099";
+    }
+
+    event.preventDefault();
+  });
+
   // Listen for mouse down
   renderer.domElement.addEventListener("mousedown", (event) => {
     if (event.button !== 0) return; // Only accept left click
@@ -293,8 +454,11 @@ const enableCameraControls = false;
           const rect = inventoryDiv.getBoundingClientRect();
           const px = event.clientX;
           const py = event.clientY;
-          const inside = px >= rect.left && px <= rect.right &&
-            py >= rect.top && py <= rect.bottom;
+          const inside =
+            px >= rect.left &&
+            px <= rect.right &&
+            py >= rect.top &&
+            py <= rect.bottom;
           if (inside) inventoryDiv.classList.add("over");
           else inventoryDiv.classList.remove("over");
         }
@@ -331,7 +495,8 @@ const enableCameraControls = false;
       const mouseX = event.clientX;
       const mouseY = event.clientY;
 
-      const overInventory = invRect !== null &&
+      const overInventory =
+        invRect !== null &&
         mouseX >= invRect.left &&
         mouseX <= invRect.right &&
         mouseY >= invRect.top &&
@@ -732,15 +897,9 @@ const enableCameraControls = false;
     return img;
   }
 
-  langMenu.appendChild(
-    createLangButton(USAFlag, "english", "English"),
-  );
-  langMenu.appendChild(
-    createLangButton(IsraelFlag, "hebrew", "Hebrew"),
-  );
-  langMenu.appendChild(
-    createLangButton(JapanFlag, "japanese", "Japanese"),
-  );
+  langMenu.appendChild(createLangButton(USAFlag, "english", "English"));
+  langMenu.appendChild(createLangButton(IsraelFlag, "hebrew", "Hebrew"));
+  langMenu.appendChild(createLangButton(JapanFlag, "japanese", "Japanese"));
 
   // Toggle / show menu next to the language button
   let langMenuVisible = false;
