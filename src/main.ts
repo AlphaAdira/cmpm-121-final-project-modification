@@ -39,6 +39,10 @@ const enableCameraControls = false;
   btnRight.className = "nav-btn nav-right";
   btnRight.style.display = "none"; // Hidden by default (visibility toggled in code)
   document.body.appendChild(btnRight);
+
+  btnLeft.classList.add("nav-left");
+  btnRight.classList.add("nav-right");
+
   // #endregion
 
   // #region - Camera Controls ----------
@@ -596,54 +600,86 @@ const enableCameraControls = false;
   ButtonsBox.className = "buttons-box";
   document.body.appendChild(ButtonsBox);
 
-  // Language button
-  const langButton = document.createElement("button");
-  langButton.textContent = "Change Language";
-
-  ButtonsBox.appendChild(langButton);
-
-  // Language button event
-  langButton.addEventListener("click", () => {
+  // Language image button
+  const langImg = document.createElement("img");
+  langImg.src = "src/assets/Languages.png";
+  langImg.alt = "Change Language";
+  langImg.title = "Change Language";
+  langImg.className = "ui-btn-img";
+  ButtonsBox.appendChild(langImg);
+  langImg.addEventListener("click", () => {
     alert("Language change feature is not implemented yet.");
   });
 
-  // Light/dark mode button
-  const modeButton = document.createElement("button");
-  modeButton.textContent = "Toggle Light/Dark Mode";
-  ButtonsBox.appendChild(modeButton);
+  // Light/dark mode image button
+  const modeImg = document.createElement("img");
+  modeImg.alt = "Toggle Light/Dark Mode";
+  modeImg.title = "Toggle Light/Dark Mode";
+  modeImg.className = "ui-btn-img";
+  ButtonsBox.appendChild(modeImg);
 
-  // Light mode button event
-  modeButton.addEventListener("click", () => {
+  function updateModeIcon() {
+    const isDark = InvBox.classList.contains("dark");
+    // Show LightMode icon when currently dark (clicking will switch to light),
+    // and show DarkMode icon when currently light.
+    modeImg.src = isDark ? "src/assets/LightMode.png" : "src/assets/DarkMode.png";
+    // Also ensure the buttons box knows about dark mode so we can style icons
+    if (isDark) {
+      ButtonsBox.classList.add("dark");
+      btnLeft.style.color = "white";
+      btnLeft.style.backgroundColor = "rgba(153, 153, 153, 1.0)";
+      btnRight.style.color = "white";
+      btnRight.style.backgroundColor = "rgba(153, 153, 153, 1.0)";
+    } else {
+      ButtonsBox.classList.remove("dark");
+      btnLeft.style.color = "black";
+      btnLeft.style.backgroundColor = "rgba(102, 102, 102, 1.0)";
+      btnRight.style.color = "black";
+      btnRight.style.backgroundColor = "rgba(102, 102, 102, 1.0)";
+    }
+  }
+
+  modeImg.addEventListener("click", () => {
     const current = renderer.getClearColor(new THREE.Color());
     if (current.getHex() === 0xffffff) {
       renderer.setClearColor(0x000000, 1);
       InvBox.classList.add("dark");
+      ButtonsBox.classList.add("dark");
     } else {
       renderer.setClearColor(0xffffff, 1);
       InvBox.classList.remove("dark");
+      ButtonsBox.classList.remove("dark");
     }
+    updateModeIcon();
   });
 
-  // Reset button
-  const resetButton = document.createElement("button");
-  resetButton.textContent = "Reset Game";
-  ButtonsBox.appendChild(resetButton);
-
-  // Reset button event
-  resetButton.addEventListener("click", () => {
+  // Reset image button
+  const resetImg = document.createElement("img");
+  resetImg.src = "src/assets/Reset.png";
+  resetImg.alt = "Reset Game";
+  resetImg.title = "Reset Game";
+  resetImg.className = "ui-btn-img";
+  ButtonsBox.appendChild(resetImg);
+  resetImg.addEventListener("click", () => {
     saveManager.reset();
     updateSceneButtons();
+    updateModeIcon();
   });
 
-  // Save button (for manual testing)
-  const saveButton = document.createElement("button");
-  saveButton.textContent = "Save Game";
-  ButtonsBox.appendChild(saveButton);
-
-  saveButton.addEventListener("click", () => {
+  // Save image button
+  const saveImg = document.createElement("img");
+  saveImg.src = "src/assets/Save.png";
+  saveImg.alt = "Save Game";
+  saveImg.title = "Save Game";
+  saveImg.className = "ui-btn-img";
+  ButtonsBox.appendChild(saveImg);
+  saveImg.addEventListener("click", () => {
     saveManager.save();
     console.log("[Manual] Save triggered");
   });
+
+  // Initialize mode icon to current state
+  updateModeIcon();
 
   // #endregion
 
