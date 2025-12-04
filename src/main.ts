@@ -26,7 +26,7 @@ const enableCameraControls = false;
 
   let lastTime = globalThis.performance?.now() ?? 0;
 
-  // ---------- Scene Navigation Buttons ----------
+  // #region - Scene Navigation Buttons ----------
   const btnLeft = document.createElement("div");
   btnLeft.innerHTML = "⟵";
   btnLeft.style.position = "absolute";
@@ -62,8 +62,9 @@ const enableCameraControls = false;
   btnRight.style.borderRadius = "8px";
   btnRight.style.pointerEvents = "auto";
   document.body.appendChild(btnRight);
+  // #endregion
 
-  // ---------- Camera Controls ----------
+  // #region - Camera Controls ----------
   // Create camera
   const camera = new THREE.PerspectiveCamera(
     75, // FOV
@@ -95,8 +96,9 @@ const enableCameraControls = false;
 
     cameraControls.update();
   }
+  // #endregion
 
-  // ---------- Scene Objects ----------
+  // #region - Scene Objects ----------
   // Create scenes
   const scene1 = new GameScene(physics);
   const scene2 = new GameScene(physics);
@@ -178,8 +180,9 @@ const enableCameraControls = false;
       }
     }
   }
+  // #endregion
 
-  // ---------- Scene Navigation Logic ----------
+  // #region - Scene Navigation Logic ----------
   // Hook up scene switching
   btnLeft.addEventListener("click", () => {
     sceneManager.goPrev();
@@ -200,8 +203,9 @@ const enableCameraControls = false;
     btnLeft.style.display = index > 0 ? "block" : "none";
     btnRight.style.display = index < count - 1 ? "block" : "none";
   }
+  // #endregion
 
-  // ---------- Drag & Drop Mechanics ----------
+  // #region - Drag & Drop Mechanics ----------
   // Variables
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
@@ -270,8 +274,9 @@ const enableCameraControls = false;
       dragging = false;
     }
   });
+  // #endregion
 
-  // ---------- Animation Loop ----------
+  // #region - Animation Loop ----------
   let successShown = false;
   function animate(time = lastTime) {
     requestAnimationFrame(animate);
@@ -357,8 +362,9 @@ const enableCameraControls = false;
 
   // Initial animate call
   animate();
+  // #endregion
 
-  // ------- Success Call ----------
+  // #region - Success Call ----------
   function isTouching(cube: THREE.Mesh, target: THREE.Mesh): boolean {
     const cubeBox = new THREE.Box3().setFromObject(cube);
     const targetBox = new THREE.Box3().setFromObject(target);
@@ -393,8 +399,9 @@ const enableCameraControls = false;
     el.style.transition = "opacity1.5s ease-out";
     document.body.appendChild(el);
   }
+  // #endregion
 
-  // ------- Inventory System ----------
+  // #region - Inventory System ----------
   const InvBox = document.createElement("div");
   InvBox.id = "inventory";
   InvBox.style.position = "absolute";
@@ -464,8 +471,9 @@ const enableCameraControls = false;
 
     physicsActive = true;
   });
+  // #endregion
 
-  // ------- UI System ----------
+  // #region - UI System ----------
   const ButtonsBox = document.createElement("div");
   ButtonsBox.id = "inventory";
   ButtonsBox.style.position = "absolute";
@@ -516,4 +524,5 @@ const enableCameraControls = false;
   saveButton.addEventListener("click", () => {
     alert("Save game feature is not implemented yet.");
   });
+  // #endregion
 })();
