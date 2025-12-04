@@ -1,0 +1,82 @@
+/* Global page styles */
+body {
+  margin: 0;
+  overflow: hidden;
+}
+canvas {
+  display: block;
+}
+
+/* Navigation buttons */
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 48px;
+  cursor: pointer;
+  user-select: none;
+  z-index: 1000;
+  color: white;
+  background: rgba(0,0,0,0.45);
+  padding: 6px 10px;
+  border-radius: 8px;
+  pointer-events: auto;
+}
+.nav-left { left: 20px; }
+.nav-right { right: 20px; }
+
+/* On/off visibility is controlled by inline display toggles in JS */
+
+/* Popup messages */
+.message {
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 32px;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px #000;
+  z-index: 1000;
+  pointer-events: none;
+  transition: opacity 1.5s ease-out;
+}
+.message.success { color: lime; }
+.message.fail { color: red; }
+
+/* Inventory */
+.inventory {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 150px;
+  height: 150px;
+  background: #b8bbbd;
+  border-radius: 30px;
+  color: black;
+  z-index: 1;
+  pointer-events: none;
+}
+.inventory.dark { background: #6e7277; }
+
+.inv-item {
+  width: 50px;
+  height: 50px;
+  margin: 10px auto;
+  border-radius: 10px;
+  pointer-events: auto;
+}
+
+/* UI buttons box */
+.buttons-box {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 200px;
+  height: 150px;
+  z-index: 1;
+  pointer-events: none;
+}
+.buttons-box button {
+  margin: 10px;
+  pointer-events: auto;
+}

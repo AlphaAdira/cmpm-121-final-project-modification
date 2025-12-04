@@ -29,38 +29,14 @@ const enableCameraControls = false;
   // #region - Scene Navigation Buttons ----------
   const btnLeft = document.createElement("div");
   btnLeft.innerHTML = "⟵";
-  btnLeft.style.position = "absolute";
-  btnLeft.style.left = "20px";
-  btnLeft.style.top = "50%";
-  btnLeft.style.transform = "translateY(-50%)";
-  btnLeft.style.fontSize = "48px";
-  btnLeft.style.cursor = "pointer";
-  btnLeft.style.userSelect = "none";
-  btnLeft.style.zIndex = "1000";
-  btnLeft.style.display = "none"; // hidden by default
-  btnLeft.style.color = "white";
-  btnLeft.style.background = "rgba(0,0,0,0.45)";
-  btnLeft.style.padding = "6px 10px";
-  btnLeft.style.borderRadius = "8px";
-  btnLeft.style.pointerEvents = "auto";
+  btnLeft.className = "nav-btn nav-left";
+  btnLeft.style.display = "none"; // hidden by default (visibility toggled in code)
   document.body.appendChild(btnLeft);
 
   const btnRight = document.createElement("div");
   btnRight.innerHTML = "⟶";
-  btnRight.style.position = "absolute";
-  btnRight.style.right = "20px";
-  btnRight.style.top = "50%";
-  btnRight.style.transform = "translateY(-50%)";
-  btnRight.style.fontSize = "48px";
-  btnRight.style.cursor = "pointer";
-  btnRight.style.userSelect = "none";
-  btnRight.style.zIndex = "1000";
-  btnRight.style.display = "none"; // hidden by default
-  btnRight.style.color = "white";
-  btnRight.style.background = "rgba(0,0,0,0.45)";
-  btnRight.style.padding = "6px 10px";
-  btnRight.style.borderRadius = "8px";
-  btnRight.style.pointerEvents = "auto";
+  btnRight.className = "nav-btn nav-right";
+  btnRight.style.display = "none"; // hidden by default (visibility toggled in code)
   document.body.appendChild(btnRight);
   // #endregion
 
@@ -371,7 +347,7 @@ const enableCameraControls = false;
     return cubeBox.intersectsBox(targetBox);
   }
 
-  function showText(elementID: string, message: string, color: string) {
+  function showText(elementID: string, message: string, _color: string) {
     const existing = document.getElementById(elementID);
     if (existing) {
       existing.remove();
@@ -386,17 +362,7 @@ const enableCameraControls = false;
     const el = document.createElement("div");
     el.id = elementID;
     el.textContent = message;
-    el.style.position = "absolute";
-    el.style.top = "35%";
-    el.style.left = "50%";
-    el.style.transform = "translateX(-50%)";
-    el.style.color = color;
-    el.style.fontSize = "32px";
-    el.style.fontWeight = "bold";
-    el.style.textShadow = "2px2px4px #000";
-    el.style.zIndex = "1000";
-    el.style.pointerEvents = "none";
-    el.style.transition = "opacity1.5s ease-out";
+    el.className = `message ${elementID}`;
     document.body.appendChild(el);
   }
   // #endregion
@@ -404,16 +370,7 @@ const enableCameraControls = false;
   // #region - Inventory System ----------
   const InvBox = document.createElement("div");
   InvBox.id = "inventory";
-  InvBox.style.position = "absolute";
-  InvBox.style.top = "20px";
-  InvBox.style.left = "20px";
-  InvBox.style.width = "150px";
-  InvBox.style.height = "150px";
-  InvBox.style.background = "#b8bbbd";
-  InvBox.style.borderRadius = "30px";
-  InvBox.style.color = "black";
-  InvBox.style.zIndex = "1";
-  InvBox.style.pointerEvents = "none";
+  InvBox.className = "inventory";
   document.body.appendChild(InvBox);
   // Set the inventoryDiv reference now that the element exists
   inventoryDiv = InvBox;
@@ -425,12 +382,9 @@ const enableCameraControls = false;
     }
     const item = document.createElement("div");
     item.id = "invItem";
-    item.style.width = "50px";
-    item.style.height = "50px";
+    item.className = "inv-item";
+    // keep color dynamic
     item.style.background = color;
-    item.style.margin = "10px auto";
-    item.style.borderRadius = "10px";
-    item.style.pointerEvents = "auto";
     InvBox.appendChild(item);
   }
   // Add event listener for pulling cube out of inventory
@@ -475,32 +429,21 @@ const enableCameraControls = false;
 
   // #region - UI System ----------
   const ButtonsBox = document.createElement("div");
-  ButtonsBox.id = "inventory";
-  ButtonsBox.style.position = "absolute";
-  ButtonsBox.style.top = "20px";
-  ButtonsBox.style.right = "20px";
-  ButtonsBox.style.width = "200px";
-  ButtonsBox.style.height = "150px";
-  ButtonsBox.style.zIndex = "1";
-  ButtonsBox.style.pointerEvents = "none";
+  ButtonsBox.id = "ui-buttons";
+  ButtonsBox.className = "buttons-box";
   document.body.appendChild(ButtonsBox);
   // language button
   const langButton = document.createElement("button");
   langButton.textContent = "Change Language";
-  langButton.style.margin = "10px";
-  langButton.style.pointerEvents = "auto";
+  // buttons inherit styling from CSS; pointer-events enabled via CSS
   ButtonsBox.appendChild(langButton);
   // light/dark mode button
   const modeButton = document.createElement("button");
   modeButton.textContent = "Toggle Light/Dark Mode";
-  modeButton.style.margin = "10px";
-  modeButton.style.pointerEvents = "auto";
   ButtonsBox.appendChild(modeButton);
   // save button
   const saveButton = document.createElement("button");
   saveButton.textContent = "Save Game";
-  saveButton.style.margin = "10px";
-  saveButton.style.pointerEvents = "auto";
   ButtonsBox.appendChild(saveButton);
 
   // language button event
@@ -513,10 +456,10 @@ const enableCameraControls = false;
     const current = renderer.getClearColor(new THREE.Color());
     if (current.getHex() === 0xffffff) {
       renderer.setClearColor(0x000000);
-      InvBox.style.background = "#6e7277";
+      InvBox.classList.add("dark");
     } else {
       renderer.setClearColor(0xffffff);
-      InvBox.style.background = "#b8bbbd";
+      InvBox.classList.remove("dark");
     }
   });
 
