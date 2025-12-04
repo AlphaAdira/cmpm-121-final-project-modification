@@ -36,10 +36,6 @@ const enableCameraControls = false;
     "Pick up the cube. You can also change scenes with the arrow buttons.";
   document.body.appendChild(tutorialText);
 
-  // Create global language setting
-  let language = (globalThis as any).language ?? "english";
-  (globalThis as any).language = language;
-
   // #region - Scene Navigation Buttons ----------
   const btnLeft = document.createElement("div");
   btnLeft.innerHTML = "⟵";
@@ -642,6 +638,9 @@ const enableCameraControls = false;
   langMenu.id = "language-menu";
   document.body.appendChild(langMenu);
 
+  let language = (globalThis as any).language ?? "english";
+  (globalThis as any).language = language;
+
   function createLangButton(src: string, code: string, title: string) {
     const img = document.createElement("img");
     img.src = src;
@@ -651,6 +650,8 @@ const enableCameraControls = false;
     img.addEventListener("click", () => {
       language = code;
       (globalThis as any).language = code;
+
+      saveManager.setLanguage(code);
       updateTutorial();
     });
 
@@ -767,6 +768,24 @@ const enableCameraControls = false;
 
   function updateTutorial() {
     saveManager.setTutorialStep(tutorialStep);
+
+    switch (language) {
+      case "english":
+        tutorialText.style.fontFamily = "Arial, sans-serif";
+        tutorialText.style.fontSize = "28px";
+        tutorialText.style.direction = "ltr";
+        break;
+      case "hebrew":
+        tutorialText.style.fontFamily = "'David Libre', serif";
+        tutorialText.style.fontSize = "30px";
+        tutorialText.style.direction = "rtl";
+        break;
+      case "japanese":
+        tutorialText.style.fontFamily = "'Noto Sans JP', sans-serif";
+        tutorialText.style.fontSize = "26px";
+        tutorialText.style.direction = "ltr";
+        break;
+    }
 
     switch (tutorialStep) {
       case 0:

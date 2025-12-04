@@ -31,6 +31,7 @@ export class SaveManager {
   private storageKey = "cmpm121_save";
   private isDragging = false;
   private tutorialStep: number = 0;
+  private language: string = "english";
 
   constructor(opts: {
     sceneManager: SceneManager;
@@ -40,6 +41,7 @@ export class SaveManager {
     renderer: THREE.WebGLRenderer;
     grounds: { [k: string]: THREE.Mesh };
     tutorialStep?: number;
+    language?: string;
   }) {
     this.sceneManager = opts.sceneManager;
     this.physics = opts.physics;
@@ -48,6 +50,7 @@ export class SaveManager {
     this.renderer = opts.renderer;
     this.grounds = opts.grounds;
     this.tutorialStep = opts.tutorialStep ?? 0;
+    this.language = opts.language ?? "english";
   }
 
   // Public method to update dragging state
@@ -58,6 +61,11 @@ export class SaveManager {
   // Public method to update tutorial step
   setTutorialStep(tutorialStep: number): void {
     this.tutorialStep = tutorialStep;
+  }
+
+  // Public method to update language
+  setLanguage(language: string): void {
+    this.language = language;
   }
 
   // #region - Save ----------
@@ -158,13 +166,16 @@ export class SaveManager {
       activeScene: this.sceneManager.getCurrentSceneKey(),
       darkMode: this.invBox.classList.contains("dark"),
       tutorialStep: this.tutorialStep,
+      language: this.language,
       savedAt: Date.now(),
     };
 
+    // Debug logs
     try {
       //console.log("[SaveManager] saving mainCube:", data.mainCubeState);
       //console.log("[SaveManager] mainCube local position before save:", { x: this.mainCube.position.x, y: this.mainCube.position.y, z: this.mainCube.position.z });
       //console.log("[SaveManager] saving tutorialStep:", data.tutorialStep);
+      //console.log("[SaveManager] saving language:", data.language);
     } catch (_e) { /* ignore */ }
 
     localStorage.setItem(this.storageKey, JSON.stringify(data));
@@ -375,6 +386,15 @@ export class SaveManager {
       (globalThis as any).tutorialStep = this.tutorialStep;
       try {
         (globalThis as any).updateTutorial();
+      } catch (_e) { /* ignore */ }
+    }
+
+    // Language
+    if (typeof data.language === "string") {
+      this.language = data.language;
+      (globalThis as any).language = this.language;
+      try {
+        (globalThis as any).setLanguage(this.language);
       } catch (_e) { /* ignore */ }
     }
 
