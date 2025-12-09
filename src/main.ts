@@ -1074,7 +1074,8 @@ const enableCameraControls = false;
         break;
 
       case 3:
-        setTutorialText(""); // Tutorial is finished
+        // Tutorial is finished - Modified for Part B
+        setTutorialText("Adira Rana Part B");
         break;
     }
   }
